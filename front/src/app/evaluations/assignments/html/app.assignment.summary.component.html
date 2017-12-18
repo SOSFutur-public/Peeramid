@@ -1,0 +1,41 @@
+<div *ngIf="assignment" [@routerAnimation]>
+  <div class="col-md-2">
+    <img *ngIf="assignmentAssets" [src]="assignment.evaluation.lesson.displayImage()" class="img-thumbnail thumbnail-evaluation">
+  </div>
+  <div class="col-md-10">
+    <h3>
+      <i *ngIf="assignment.evaluation.individual_assignment" class="fa fa-user" title="Devoir individuel"></i>
+      <i *ngIf="!assignment.evaluation.individual_assignment" class="fa fa-users" title="Devoir en groupe"></i>
+      {{ assignment.evaluation.name }} <small>- {{ assignment.evaluation.lesson.name }}</small>
+      <div class="pull-right">
+        <div class="row">
+          <div class="col-sm-12">
+            <button type="button" class="btn btn-primary btn-xs pull-right" [routerLink]="['/student/assignment/', assignment.id, 'edit']">
+              <i class="fa {{ assignmentAssets.icon }}"></i>
+              <span>{{ assignmentAssets.action }}</span>
+            </button>
+          </div>
+          <div *ngIf="correctionFinished && assignment.evaluation.date_end_correction" class="col-sm-12">
+            <button type="button" class="btn btn-primary btn-xs pull-right" [routerLink]="['/student/assignment/', assignment.id, 'corrections']">
+              <i class="fa {{ opinionAssets.icon }}"></i>
+              <span>{{ opinionAssets.action }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </h3>
+    <h4 *ngIf="assignmentAssets.finished && assignment.evaluation.show_assignment_mark && assignment.mark">Note : {{ assignment.mark }}</h4>
+    <p *ngIf="assignment.date_submission !== null">
+      Devoir rendu le <strong>{{ assignment.date_submission | date:'dd/MM/yyyy à HH:mm' }}</strong>
+    </p>
+    <p *ngIf="!assignment.date_submission">
+      <strong>Devoir non rendu</strong>
+    </p>
+    <p *ngIf="!assignmentAssets.finished">
+      Devoir à rendre avant le <strong>{{ assignment.evaluation.date_end_assignment | date:'dd/MM/yyyy à HH:mm' }}</strong>
+    </p>
+    <p *ngIf="correctionFinished && !opinionAssets.finished">
+      Donner votre opinion avant le <strong>{{ assignment.evaluation.date_end_opinion | date:'dd/MM/yyyy à HH:mm' }}</strong>
+    </p>
+  </div>
+</div>

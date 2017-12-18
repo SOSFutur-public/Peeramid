@@ -1,0 +1,375 @@
+<div *ngIf="view_section_form" id="black"></div>
+
+<div [ngClass]="{'fixed': false}">
+
+  <h1 class="page-header">
+  <span *ngIf="!evaluation.id">
+    <fa name="plus"></fa> Nouvelle évaluation
+  </span>
+    <span *ngIf="evaluation.id">
+    <fa *ngIf="!evaluation.active_assignment" name="file-text-o"></fa>
+    <fa *ngIf="(evaluation.active_assignment && evaluation.date_start_assignment > currentDate)" name="clock-o"></fa>
+    <fa *ngIf=
+          "(evaluation.active_assignment && evaluation.active_correction && evaluation.date_start_assignment < currentDate && evaluation.date_end_correction > currentDate) ||
+           (evaluation.active_assignment && !evaluation.active_correction && evaluation.date_start_assignment < currentDate && evaluation.date_end_assignment > currentDate)"
+        name="spinner"></fa>
+    <fa *ngIf="(evaluation.active_assignment && evaluation.active_correction && evaluation.date_end_correction < currentDate)" name="check"></fa>
+    <fa *ngIf="0" name="archive"></fa>
+    {{ evaluation.name }}
+  </span>
+    <button *ngIf="evaluation.id" type="button" class="btn btn-primary btn-info pull-right" [routerLink]="['/teacher/correction', evaluation.id, 'edit']">
+      <fa name="arrow-right"></fa> Correction
+    </button>
+    <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+      <fa name="times"></fa> Annuler
+    </button>
+  </h1>
+
+  <pre *ngIf="0 && environment.debug_log">Value: {{ evaluation | json }}</pre>
+
+  <form *ngIf="evaluationForm" class="validated-form" [formGroup]="evaluationForm" novalidate autocomplete="off">
+
+    <div class="row">
+
+      <!-- Error -->
+      <div *ngIf="invalidForm" class="col-lg-12">
+        <div class="alert alert-danger">
+          Votre formulaire est invalide. Merci de le corriger avant de valider.
+        </div>
+      </div>
+
+
+      <accordion class="col-lg-12">
+
+        <!-- Evaluation definition -->
+        <accordion-group [isOpen]="true" #definition formGroupName="definition">
+          <div accordion-heading>
+            <span>Définition du devoir</span>
+            <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': definition?.isOpen, 'glyphicon-chevron-right': !definition?.isOpen}"></i>
+          </div>
+          <div class="form-horizontal">
+            <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['name'].length > 0) || (backChecks && backChecks['name'].length > 0 && nameControl.pristine), 'has-success': saveChecks && !(saveChecks['name'].length > 0)}">
+              <label class="col-sm-3 control-label">Nom du devoir</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" formControlName="name" placeholder="Nom de l'évaluation">
+                <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[nameControl]" [frontCheck]="activateChecks['name']" [backCheck]="backChecks['name']"></app-core-form-errors>
+              </div>
+            </div>
+            <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['lesson'].length > 0) || (backChecks && backChecks['lesson'].length > 0 && lessonControl.pristine), 'has-success': saveChecks && !(saveChecks['lesson'].length > 0)}">
+              <label class="col-sm-3 control-label">Cours correspondant</label>
+              <div class="col-sm-9">
+                <ss-multiselect-dropdown *ngIf="lessons.length > 0" [options]="lessons" [texts]="lessonsSelectTexts" [settings]="singleSelectSettings" [ngClass]="{'disabled': evaluation.id}" formControlName="lesson"></ss-multiselect-dropdown>
+                <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[lessonControl]" [frontCheck]="activateChecks['lesson']" [backCheck]="backChecks['lesson']"></app-core-form-errors>
+              </div>
+            </div>
+            <div *ngIf="evaluation.id" class="form-group">
+              <label class="col-sm-3 control-label">Sujet (WYSIWYG)</label>
+              <div class="col-sm-9">
+                <textarea class="form-control" formControlName="subject" id="wysiwyg-subject" value="{{ evaluation.subject }}"></textarea>
+                <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[subjectControl]" [frontCheck]="activateChecks['subject']" [backCheck]="backChecks['subject']"></app-core-form-errors>
+              </div>
+            </div>
+            <div *ngIf="evaluation.id" class="form-group">
+              <label class="col-sm-3 control-label">
+                Sujet (Fichiers)
+                <p class="info">
+                  Taille maximale: {{ filesMaxSizeSetting }}Mo
+                </p>
+              </label>
+              <div class="col-md-2">
+                <input #uploaderSubjectElem [disabled]="evaluation.active_assignment" type="file" id="files-subjects" class="hidden" ng2FileSelect [uploader]="uploaderSubject" multiple />
+                <button *ngIf="evaluation.active_assignment" type="button" class="btn btn-primary btn-info btn-files" disabled><fa name="upload"></fa> Sélectionner les fichiers</button>
+                <label *ngIf="!evaluation.active_assignment" class="btn btn-primary btn-info btn-files" for="files-subjects"><fa name="upload"></fa> Sélectionner les fichiers</label>
+              </div>
+              <div class="col-md-7">
+                <div class="input-group table-files">
+                  <table class="table">
+                    <tbody>
+                    <tr *ngFor="let item of evaluation.subject_files">
+                      <td><strong>{{ item.file_name }}</strong></td>
+                      <td class="pull-right">
+                        <button [disabled]="evaluation.active_assignment" type="button" class="btn btn-danger btn-xs" (click)="removeFile('subject_files', item.id)">
+                          <span class="glyphicon glyphicon-trash"></span> Supprimer
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngFor="let item of uploaderSubject.queue; let subjectIndex = index">
+                      <td>
+                        <p><strong>{{ item?.file?.name }}</strong></p>
+                        <div *ngIf="activateChecks !== null && activateChecks['subjectFiles'].length > 0 && activateChecks['subjectFiles'][subjectIndex]">
+                          <div class="errors">
+                            <p class="label label-danger">
+                              {{ activateChecks['subjectFiles'][subjectIndex] }}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="pull-right">
+                        <button [disabled]="evaluation.active_assignment" type="button" class="btn btn-danger btn-xs" (click)="removeQueuedItem(item)">
+                          <span class="glyphicon glyphicon-trash"></span> Supprimer
+                        </button>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </accordion-group>
+
+        <!-- Evaluation instructions -->
+        <accordion-group *ngIf="evaluation.id" #instructions [isOpen]="true" formGroupName="instructions">
+          <div accordion-heading>
+            <span>Remise des devoirs</span>
+            <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': instructions?.isOpen, 'glyphicon-chevron-right': !instructions?.isOpen}"></i>
+          </div>
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">Consignes</label>
+              <div class="col-sm-9">
+                <textarea class="form-control" formControlName="assignmentInstructions" id="wysiwyg-assignmentInstructions" value="{{ evaluation.assignment_instructions }}"></textarea>
+                <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[assignmentInstructionsControl]" [frontCheck]="activateChecks['assignmentInstructions']" [backCheck]="backChecks['assignmentInstructions']"></app-core-form-errors>
+              </div>
+            </div>
+            <fieldset formGroupName="datesAssignment">
+              <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['dateStartAssignment'].length > 0) || (backChecks && backChecks['dateStartAssignment'].length > 0 && dateStartAssignmentControl.pristine), 'has-success': activateChecks && !(activateChecks['dateStartAssignment'].length > 0)}">
+                <label class="col-sm-3 control-label label-datetimepicker">
+                  Rendu des devoirs à partir du
+                  <span class="glyphicon glyphicon-info-sign" popoverTitle="Période de rendu des devoirs" popover="Date à partir de laquelle le devoir sera accessible et visible pour les étudiants. La publication a lieu à partir du moment où le devoir a été validé pour publication et que la date de publication est atteinte." container="body" triggers="mouseenter:mouseleave"></span>
+                </label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control datepicker" bsDatepicker
+                         [minDate]="minDate"
+                         [bsConfig]="bsConfig"
+                         #dp="bsDatepicker"
+                         formControlName="dateStart"
+                         placeholder="Date de début du devoir">
+                  <timepicker [readonlyInput]="evaluation.active_assignment" [ngClass]="{'disabled': evaluation.active_assignment}" class="timepicker" formControlName="timeStart"></timepicker>
+                  <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[dateStartAssignmentControl]" [frontCheck]="activateChecks['dateStartAssignment']" [backCheck]="backChecks['dateStartAssignment']"></app-core-form-errors>
+                </div>
+              </div>
+              <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['dateEndAssignment'].length > 0) || (backChecks && backChecks['dateEndAssignment'].length > 0 && dateEndAssignmentControl.pristine), 'has-success': activateChecks && !(activateChecks['dateEndAssignment'].length > 0)}">
+                <label class="col-sm-3 control-label label-datetimepicker">Rendu des devoirs jusqu’au</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control datepicker" bsDatepicker
+                         [minDate]="minDate"
+                         [bsConfig]="bsConfig"
+                         #dp="bsDatepicker"
+                         formControlName="dateEnd"
+                         placeholder="Date de fin du devoir">
+                  <timepicker [readonlyInput]="evaluation.active_assignment" [ngClass]="{'disabled': evaluation.active_assignment}" class="timepicker" formControlName="timeEnd"></timepicker>
+                  <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[dateStartAssignmentControl, dateEndAssignmentControl]" [frontCheck]="activateChecks['dateEndAssignment']" [backCheck]="backChecks['dateEndAssignment']"></app-core-form-errors>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </accordion-group>
+
+        <!-- Evaluation attribution -->
+        <accordion-group *ngIf="evaluation.id" #attribution [isOpen]="true" formGroupName="attribution">
+          <div accordion-heading>
+            <span>Attribution des devoirs</span>
+            <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': attribution?.isOpen, 'glyphicon-chevron-right': !attribution?.isOpen}"></i>
+          </div>
+          <div class="form-horizontal">
+            <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['individualAssignment'].length > 0) || (backChecks && backChecks['individualAssignment'].length > 0 && individualAssignmentControl.pristine), 'has-success': activateChecks && !(activateChecks['individualAssignment'].length > 0)}">
+              <label class="col-sm-3 control-label">Mode de travail</label>
+              <div class="col-sm-5 radio">
+                <label>
+                  <input type="radio" [value]="true" formControlName="individualAssignment">
+                  Travail individuel
+                </label>
+                <label>
+                  <input type="radio" [value]="false" formControlName="individualAssignment">
+                  Travail de groupe
+                </label>
+                <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[individualAssignmentControl]" [frontCheck]="activateChecks['individualAssignment']" [backCheck]="backChecks['individualAssignment']"></app-core-form-errors>
+              </div>
+            </div>
+            <div class="form-group">
+              <div *ngIf="individualAssignmentControl.value" [ngClass]="{'has-error': (activateChecks && activateChecks['users'].length > 0) || (backChecks && backChecks['users'].length > 0 && usersControl.pristine), 'has-success': activateChecks && !(activateChecks['users'].length > 0)}">
+                <label class="col-sm-3 control-label">Liste des étudiants affectés</label>
+                <div class="col-sm-9">
+                  <ss-multiselect-dropdown *ngIf="users.length > 0" [options]="users" [texts]="usersSelectTexts" [settings]="multipleSelectSettings" [ngClass]="{'disabled': evaluation.id}" formControlName="users"></ss-multiselect-dropdown>
+                  <p *ngIf="!(users.length > 0)" class="none">
+                    Aucun étudiant n'est affecté à ce cours...
+                  </p>
+                  <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[usersControl]" [frontCheck]="activateChecks['users']" [backCheck]="backChecks['users']"></app-core-form-errors>
+                </div>
+              </div>
+              <div *ngIf="!individualAssignmentControl.value" [ngClass]="{'has-error': (activateChecks && activateChecks['groups'].length > 0) || (backChecks && backChecks['groups'].length > 0 && groupsControl.pristine), 'has-success': activateChecks && !(activateChecks['groups'].length > 0)}">
+                <label class="col-sm-3 control-label">Liste des groupes affectés</label>
+                <div class="col-sm-9">
+                  <ss-multiselect-dropdown *ngIf="groups.length > 0" [options]="groups" [texts]="groupsSelectTexts" [settings]="multipleSelectSettings" [ngClass]="{'disabled': evaluation.id}" formControlName="groups"></ss-multiselect-dropdown>
+                  <p *ngIf="!(groups.length > 0)" class="none">
+                    Aucun groupe n'est affecté à ce cours...
+                  </p>
+                  <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[groupsControl]" [frontCheck]="activateChecks['groups']" [backCheck]="backChecks['groups']"></app-core-form-errors>
+                </div>
+              </div>
+            </div>
+          </div>
+        </accordion-group>
+
+        <!-- Evaluation examples -->
+        <accordion-group *ngIf="evaluation.id" #examples [isOpen]="true" >
+          <div accordion-heading>
+            <span>Devoirs exemple</span>
+            <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': examples?.isOpen, 'glyphicon-chevron-right': !examples?.isOpen}"></i>
+          </div>
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">
+                Fichiers d'exemples
+                <p class="info">
+                  Taille maximale: {{ filesMaxSizeSetting }}Mo
+                </p>
+              </label>
+              <div class="col-md-2">
+                <input #uploaderExamplesElem type="file" id="files-examples" class="hidden" ng2FileSelect [uploader]="uploaderExamples" multiple />
+                <button *ngIf="evaluation.active_assignment" type=button class="btn btn-primary btn-info btn-files" disabled><fa name="upload"></fa> Sélectionner les fichiers</button>
+                <label *ngIf="!evaluation.active_assignment" class="btn btn-primary btn-info btn-files" for="files-examples"><fa name="upload"></fa> Sélectionner les fichiers</label>
+              </div>
+              <div class="col-md-7">
+                <div class="input-group table-files">
+                  <table class="table">
+                    <tbody>
+                    <tr *ngFor="let item of evaluation.example_assignments">
+                      <td><strong>{{ item.file_name }}</strong></td>
+                      <td class="pull-right">
+                        <button [disabled]="evaluation.active_assignment" type="button" class="btn btn-danger btn-xs" (click)="removeFile('example_assignments', item.id)">
+                          <span class="glyphicon glyphicon-trash"></span> Supprimer
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngFor="let item of uploaderExamples.queue; let exampleIndex = index">
+                      <td>
+                        <p><strong>{{ item?.file?.name }}</strong></p>
+                        <div *ngIf="activateChecks !== null && activateChecks['exampleAssignments'].length > 0 && activateChecks['exampleAssignments'][exampleIndex]">
+                          <div class="errors">
+                            <p class="label label-danger">
+                              {{ activateChecks['exampleAssignments'][exampleIndex] }}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="pull-right">
+                        <button [disabled]="evaluation.active_assignment" type="button" class="btn btn-danger btn-xs" (click)="removeQueuedItem(item)">
+                          <span class="glyphicon glyphicon-trash"></span> Supprimer
+                        </button>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </accordion-group>
+
+        <!-- Evaluation sections -->
+        <accordion-group *ngIf="evaluation.id" #sections [isOpen]="true" >
+          <div accordion-heading>
+            <span>Sections</span>
+            <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': sections?.isOpen, 'glyphicon-chevron-right': !sections?.isOpen}"></i>
+          </div>
+          <div class="form-horizontal">
+            <div *ngIf="evaluation.sections.length > 0" class="form-group" [ngClass]="{'has-error': activateChecks && activateChecks['sections'].length > 0, 'has-success': activateChecks && !(activateChecks['sections'].length > 0)}">
+              <div *ngFor="let section of evaluation.sections; let first = first; let last = last" class="col-sm-12">
+                <div class="col-sm-3">
+                  <div class="row">
+                    <div *ngIf="section.section_type" class="col-sm-12">
+                      <h4>{{ section.title }}</h4>
+                      <p>{{ section.section_type.label }}</p>
+                    </div>
+                    <div class="col-sm-12">
+                      <button [disabled]="evaluation.active_assignment || last" type="button" class="btn btn-default btn-xs" (click)="moveSection(section, 1)">
+                        <span class="fa fa-arrow-down fa-lg"></span>
+                      </button>
+                      <button [disabled]="evaluation.active_assignment || first" type="button" class="btn btn-default btn-xs" (click)="moveSection(section, -1)">
+                        <span class="fa fa-arrow-up fa-lg"></span>
+                      </button>
+                      <button [disabled]="evaluation.active_assignment" type="button" class="btn btn-primary btn-xs" (click)="displaySectionForm(section)">
+                        <span class="fa fa-pencil-square-o fa-lg"></span>
+                      </button>
+                      <button [disabled]="evaluation.active_assignment" type="button" class="btn btn-danger btn-xs" (click)="deleteSection(section)">
+                        <span class="fa fa-remove fa-lg"></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-9">
+                  <p [innerHtml]="section.subject"></p>
+                </div>
+                <div *ngIf="!last" class="col-sm-12">
+                  <hr>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button [disabled]="evaluation.active_assignment" type="button" class="btn btn-primary" (click)="displaySectionForm()">
+                <fa name="plus"></fa> Ajouter une section
+              </button>
+            </div>
+            <app-core-form-errors class="text-center" *ngIf="activateChecks !== null && backChecks !== null" [controls]="[]" [frontCheck]="activateChecks['sections']" [backCheck]="backChecks['sections']" [always]="true"></app-core-form-errors>
+          </div>
+        </accordion-group>
+
+      </accordion>
+
+    </div>
+
+    <!-- Activation button popover's template -->
+    <ng-template #activationPopover>
+      <p *ngFor="let check of formService.checksToArray(activateChecks, activateControls)">
+        <span *ngIf="check.substring(0, 1) !== '_'"><strong>{{ check }}</strong> invalide.</span>
+        <span *ngIf="check.substring(0, 1) === '_'"><strong>{{ check | slice:1 }}</strong></span>
+      </p>
+    </ng-template>
+
+    <!-- Save button popover's template -->
+    <ng-template #savePopover>
+      <!--p *ngFor="let message of getSaveButtonMessages()">{{ message }}</p-->
+      <p *ngFor="let check of formService.checksToArray(saveChecks, saveControls)">
+        <span *ngIf="check.substring(0, 1) !== '_'"><strong>{{ check }}</strong> invalide.</span>
+        <span *ngIf="check.substring(0, 1) === '_'"><strong>{{ check | slice:1 }}</strong></span>
+      </p>
+    </ng-template>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div *ngIf="!evaluation.id && !evaluation.archived && !formService.checkEmptyChecks(saveChecks)" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" triggers="mouseenter:mouseleave">
+          <button type="button" disabled class="btn btn-primary btn-success"><fa name="plus"></fa> Créer le devoir et l'éditer</button>
+        </div>
+        <button *ngIf="!evaluation.id && !evaluation.archived && formService.checkEmptyChecks(saveChecks)" type="button" (click)="saveEvaluation()" class="btn btn-primary btn-success pull-right"><fa name="plus"></fa> Créer le devoir et l'éditer</button>
+        <div *ngIf="evaluation.id && !evaluation.archived && (evaluation.active_assignment || !formService.checkEmptyChecks(saveChecks))" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" triggers="mouseenter:mouseleave">
+          <button type="button" disabled class="btn btn-primary btn-success"><fa name="floppy-o"></fa> Enregistrer les modifications</button>
+        </div>
+        <button *ngIf="evaluation.id && !evaluation.archived && !evaluation.active_assignment && formService.checkEmptyChecks(saveChecks)" type="button" (click)="saveEvaluation()" class="btn btn-primary btn-success pull-right"><fa name="floppy-o"></fa> Enregistrer les modifications</button>
+        <div *ngIf="evaluation.id && !evaluation.archived && !formService.checkEmptyChecks(activateChecks)" class="pull-right" popoverTitle="Impossible d'activer" [popover]="activationPopover" triggers="mouseenter:mouseleave">
+          <button type="button" class="btn btn-primary btn-success" disabled>
+            <fa name="check"></fa>Activer le devoir
+          </button>
+        </div>
+        <button *ngIf="evaluation.id && !evaluation.archived && formService.checkEmptyChecks(activateChecks)" type="button" class="btn btn-primary pull-right" [ngClass]="{'btn-success' : !evaluation.active_assignment, 'btn-danger' : evaluation.active_assignment}" (click)="toggleAssignment()" >
+          <fa *ngIf="evaluation.active_assignment" name="times"></fa>
+          <fa *ngIf="!evaluation.active_assignment" name="check"></fa>
+          {{ evaluation.active_assignment ?  'Désactiver le devoir' : 'Activer le devoir' }}
+        </button>
+        <button *ngIf="evaluation.id" type="button" class="btn btn-primary btn-info pull-right" [routerLink]="['/teacher/correction', evaluation.id, 'edit']"><fa name="arrow-right"></fa> Correction</button>
+        <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()"><fa name="times"></fa> Annuler</button>
+      </div>
+    </div>
+
+    <pre *ngIf="environment.debug_log">Value: {{ evaluationForm.value | json }}</pre>
+    <pre *ngIf="environment.debug_log">Validation status: {{ evaluationForm.status }}</pre>
+
+  </form>
+
+</div>
+
+<div *ngIf="view_section_form" class="view-side-form">
+  <app-evaluation-section-form [evaluation]="evaluation" [section]="section_tmp" [(getViewSectionForm)]="view_section_form" [(evaluation)]="evaluation" [(sectionsControl)]="sectionsControl"></app-evaluation-section-form>
+</div>

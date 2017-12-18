@@ -1,0 +1,15 @@
+<div id="lessons-students" class="container-fluid" [@routerAnimation]>
+  <div class="col-lg-12">
+    <h1 class="page-header">
+      Mes cours
+    </h1>
+    <div *ngIf="!lessons || !(lessons.length > 0)" class="col-sm-12 alert alert-warning">
+      Aucun cours attribué
+    </div>
+    <ul id="lessons-summary" class="col-lg-12 tab">
+      <li *ngFor="let lesson of lessons" class="row" (click)="toLesson(lesson.id)">
+        <app-lesson-summary [lesson]="lesson"></app-lesson-summary>
+      </li>
+    </ul>
+  </div>
+</div>

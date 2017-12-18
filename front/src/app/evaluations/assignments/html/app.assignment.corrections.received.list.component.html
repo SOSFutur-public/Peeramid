@@ -1,0 +1,32 @@
+<div *ngIf="assignment" class="container-fluid" [@routerAnimation]>
+  <div class="col-sm-12">
+    <h1 class="page-header">Corrections reçues</h1>
+  </div>
+
+  <div class="col-sm-12">
+    <tabset [justified]="true" class="correction-sections">
+      <div>
+        <p *ngIf="!(assignment)" class="alert alert-warning">
+          Vous n'avez pas rendu ce devoir, vous n'avez donc pas pu être corrigé
+        </p>
+        <p *ngIf="!(assignment.corrections.length > 0)" class="alert alert-warning">
+          Personne n'a corrigé votre devoir...
+        </p>
+      </div>
+      <tab *ngFor="let correction of assignment.corrections; let index = index" class="col-md-12">
+        <ng-template tabHeading>
+          <span class="fa-stack">
+            <i class="fa fa-circle-thin fa-stack-1x"></i>
+            {{ index + 1 }}
+            <span *ngIf="correction.user && correction.user.role && correction.user.role.id === 3"> Professeur</span>
+          </span>
+          <!--span *ngIf="!assignment.evaluation.anonymity">{{ assignment.evaluation.individual_correction ? correction.user.name() : correction.group.name }}</span-->
+        </ng-template>
+        <div class="row section-row">
+          <app-assignment-correction-form [correctionId]="correction.id"></app-assignment-correction-form>
+        </div>
+      </tab>
+    </tabset>
+  </div>
+
+</div>

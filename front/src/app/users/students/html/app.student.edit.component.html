@@ -1,0 +1,6 @@
+<div *ngIf="editStudent" class="container-fluid" [@routerAnimation]>
+  <div class="col-md-12">
+    <h1 class="page-header">Modification de l'étudiant : {{ editStudent.name(true) }}</h1>
+    <app-user-form [user]="editStudent" [(dirty)]="dirty"></app-user-form>
+  </div>
+</div>

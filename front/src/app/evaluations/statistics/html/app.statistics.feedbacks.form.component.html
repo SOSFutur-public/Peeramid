@@ -1,0 +1,73 @@
+<div *ngIf="evaluation" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-md-12">
+
+    <h1 class="page-header">
+      Définition des feedbacks
+      <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+        <fa name="arrow-left"></fa> Retour aux statistiques
+      </button>
+    </h1>
+
+    <form *ngIf="feedbacksForm" [formGroup]="feedbacksForm" (ngSubmit)="saveFeedbacks()" class="form-horizontal validated-form" novalidate autocomplete="off">
+
+      <div class="form-group">
+        <div class="col-sm-12 checkbox">
+          <label>
+            <input type="checkbox" formControlName="showAssignmentMark">
+            Afficher la note globale
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <fieldset formArrayName="sections" class="col-md-12">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Critères</th>
+              <th class="text-center">Afficher la note</th>
+              <th class="text-center">Commentaires de l'enseignant</th>
+              <th class="text-center">Commentaires des élèves</th>
+            </tr>
+            </thead>
+            <tbody *ngFor="let section of evaluation.sections; let sectionIndex = index" formGroupName="{{ sectionIndex }}">
+            <tr *ngFor="let criteria of section.criterias; let criteriaIndex = index" formGroupName="{{ criteriaIndex }}">
+              <td>
+                Critère n°{{ sectionIndex + criteriaIndex + 1 }}<br>
+                <span [innerHtml]="criteria.description"></span>
+              </td>
+              <td class="text-center">
+                <input type="checkbox" formControlName="showMark" placeholder="">
+              </td>
+              <td class="text-center">
+                <input type="checkbox" formControlName="showTeacherComments" placeholder="">
+              </td>
+              <td class="text-center">
+                <input type="checkbox" formControlName="showStudentComments" placeholder="">
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </fieldset>
+      </div>
+
+      <hr>
+
+      <div *ngIf="!isFinished()" class="row">
+        <div class="col-md-12">
+          <button type="submit" class="btn btn-primary btn-success pull-right"><fa name="floppy-o"></fa> Enregistrer les modifications</button>
+          <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()"><fa name="arrow-left"></fa> Retour aux statistiques</button>
+        </div>
+      </div>
+
+      <div *ngIf="environment.debug_log">
+        <pre>Evaluation: {{ evaluation | json }}</pre>
+        <pre>Value: {{ feedbacksForm.value | json }}</pre>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

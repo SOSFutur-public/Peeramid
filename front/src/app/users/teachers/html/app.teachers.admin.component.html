@@ -1,0 +1,93 @@
+<div class="container-fluid" [@routerAnimation]>
+
+  <div class="col-sm-12">
+    <h1 class="page-header">
+      Enseignants
+      <button type="button" class="btn btn-primary btn-success pull-right" [routerLink]="['/admin/teacher/new']">
+        <fa name="plus"></fa> Nouvel enseignant
+      </button>
+    </h1>
+  </div>
+
+  <!-- Search bar -->
+  <div class="col-md-6 col-md-offset-6">
+    <div class="input-group">
+      <input type="text" class="form-control" [(ngModel)]="searchBox">
+      <div class="input-group-btn">
+        <div class="btn-group" dropdown placement="bottom right">
+          <button dropdownToggle type="button" class="btn btn-default dropdown-toggle">
+            {{ searchLabel.name }} <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+            <li><a (click)="searchLabel = { name: 'Nom', property: 'last_name' }; searchBox = ''">Nom</a></li>
+            <li><a (click)="searchLabel = { name: 'Prénom', property: 'first_name' }; searchBox = ''">Prénom</a></li>
+            <li><a (click)="searchLabel = { name: 'Login', property: 'username' }; searchBox = ''">Login</a></li>
+            <li><a (click)="searchLabel = { name: 'Email', property: 'email' }; searchBox = ''">Email</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-12">
+    <table width="100%" class="table table-striped table-hover">
+      <thead>
+
+      <!-- Teachers table header -->
+      <tr>
+        <th>
+          Nom
+          <button (click)="sortTeachers('last_name', 'lastName', true)"
+                  [class]="'btn btn-default fa fa-caret-down' + isSelected('lastName', true)"></button>
+          <button (click)="sortTeachers('last_name', 'lastName', false)"
+                  [class]="'btn btn-default fa fa-caret-up' + isSelected('lastName', false)"></button>
+        </th>
+        <th>
+          Prénom
+          <button (click)="sortTeachers('first_name', 'firstName', true)"
+                  [class]="'btn btn-default fa fa-caret-down' + isSelected('firstName', true)"></button>
+          <button (click)="sortTeachers('first_name', 'firstName', false)"
+                  [class]="'btn btn-default fa fa-caret-up' + isSelected('firstName', false)"></button>
+        </th>
+        <th>
+          Login
+          <button (click)="sortTeachers('username', 'login', true)"
+                  [class]="'btn btn-default fa fa-caret-down' + isSelected('login', true)"></button>
+          <button (click)="sortTeachers('username', 'login', false)"
+                  [class]="'btn btn-default fa fa-caret-up' + isSelected('login', false)"></button>
+        </th>
+        <th>
+          Email
+          <button (click)="sortTeachers('email', 'email', true)"
+                  [class]="'btn btn-default fa fa-caret-down' + isSelected('email', true)"></button>
+          <button (click)="sortTeachers('email', 'email', false)"
+                  [class]="'btn btn-default fa fa-caret-up' + isSelected('email', false)"></button>
+        </th>
+        <th class="col-sm-1 text-center">Actions</th>
+      </tr>
+      </thead>
+
+      <!-- Teachers table -->
+      <tbody>
+      <tr *ngFor="let teacher of teachers" [hidden]="!matchingSearch(teacher, searchLabel.property) || !teacher">
+        <td>{{ teacher.last_name }}</td>
+        <td>{{ teacher.first_name }}</td>
+        <td>{{ teacher.username }}</td>
+        <td>{{ teacher.email }}</td>
+
+        <!-- Actions buttons -->
+        <td class="text-center">
+          <a [routerLink]="['/admin/teacher/', teacher.id, 'edit']" class="btn btn-primary btn-xs">
+            <i class="fa fa-pencil-square-o"></i>
+          </a>
+          <button type="button" class="btn btn-danger btn-xs" (click)="deleteTeacher(teacher)">
+            <i class="fa fa-remove"></i>
+          </button>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+    <button type="button" [routerLink]="['/admin/teacher/new']" class="btn btn-primary btn-success pull-right"><fa name="plus"></fa> Nouvel enseignant</button>
+  </div>
+</div>

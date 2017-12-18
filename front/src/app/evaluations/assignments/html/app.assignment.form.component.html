@@ -1,0 +1,231 @@
+<div *ngIf="view_instructions" id="black"></div>
+
+<div *ngIf="!assignment" class="loader"></div>
+
+<div *ngIf="assignment" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-lg-12">
+
+    <h1 class="page-header row">
+
+      <div class="col-md-9">
+        <div *ngIf="assignment.evaluation.individual_assignment">
+          <fa name="user"></fa> Devoir individuel : {{ assignment.evaluation.name }}
+        </div>
+        <div *ngIf="!assignment.evaluation.individual_assignment">
+          <fa name="users"></fa> Devoir de groupe : {{ assignment.evaluation.name }}
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <button type="button" class="btn btn-primary pull-right" (click)="displayInstructions()">
+          <fa name="info-circle"></fa> Consignes
+        </button>
+        <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+          <fa name="arrow-left"></fa> Retour
+        </button>
+      </div>
+
+      <span class="col-md-12" *ngIf="assignment.date_submission">
+        <small>Rendu le : {{ assignment.date_submission | date:'dd/MM/yyyy à HH:mm' }}</small>
+      </span>
+
+    </h1>
+
+    <h4 *ngIf="(finished && assignment.evaluation.show_assignment_mark) || authService.user.role.id === 3 && assignment.mark">
+      Note: {{ assignment.mark }}
+    </h4>
+
+  </div>
+
+  <pre *ngIf="0 && environment.debug_log">Value: {{ assignment | json }}</pre>
+
+  <!-- Group assignment message -->
+  <div *ngIf="!assignment.evaluation.individual_assignment && authService.user.role.id !== 3" class="col-sm-12" style="margin : 5px">
+    <h4>
+      <i class="fa fa-exclamation-triangle"></i>
+      Les devoirs effectués en groupe sont partagés par tous les membres, chaque membre du groupe peut en modifier le contenu.
+    </h4>
+  </div>
+
+  <!-- Sections form -->
+  <div class="col-sm-12">
+    <form *ngIf="assignmentForm" [formGroup]="assignmentForm"
+          class="form-horizontal validated-form" novalidate autocomplete="off">
+      <div formArrayName="sections">
+        <div *ngFor="let assignmentSection of assignment.assignment_sections" class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              {{ assignmentSection.section.title }}
+              <!--button type="button" ng-if="section.show_feedback" class="btn btn-sm btn-primary pull-right" ng-click="vm.showComments(section.id)">Voir les feedbacks de correction</button-->
+            </h3>
+          </div>
+          <div class="panel-body">
+            <blockquote>
+              <span [innerHtml]="assignmentSection.section.subject"></span>
+            </blockquote>
+
+            <!-- Text section -->
+            <div *ngIf="assignmentSection.section.section_type.id === 1" class="form-group">
+              <div class="row">
+                <div *ngIf="sectionControls[assignmentSection.section.order - 1].disabled" class="col-md-offset-1 col-md-10">
+                  <blockquote>
+                    <p [innerHtml]="assignmentSection.answer"></p>
+                  </blockquote>
+                </div>
+                <div *ngIf="!sectionControls[assignmentSection.section.order - 1].disabled" class="col-md-12">
+                  <textarea class="form-control" formControlName="{{ assignmentSection.section.order - 1 }}" id="wysiwyg-{{ assignmentSection.section.order - 1 }}" value=""></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- File section -->
+            <div *ngIf="assignmentSection.section.section_type.id === 2" class="form-group">
+              <div class="row">
+                <div *ngIf="sectionControls[assignmentSection.section.order - 1].disabled" class="col-md-offset-1 col-md-10">
+                  <blockquote>
+                    <a target='_blank' [href]="environment.upload_url + '/assignments/' + assignment.id + '/sections/' + assignmentSection.id + '/' + assignmentSection.answer">{{ assignmentSection.answer }}</a>
+                  </blockquote>
+                </div>
+                <div *ngIf="!sectionControls[assignmentSection.section.order - 1].disabled" class="col-md-12">
+                  <label class="col-sm-3 control-label">
+                    Fichier
+                    <p class="info">
+                      <span *ngIf="assignmentSection.section.limit_file_types">
+                        Types de fichiers autorisés:
+                        <span *ngFor="let fileType of assignmentSection.section.file_types; let lastFileType = last">
+                          {{ fileType.type }}<span *ngIf="!lastFileType">, </span>
+                        </span>
+                      <br>
+                      </span>
+                      Taille maximale: {{ assignmentSection.section.max_size }}Mo
+                    </p>
+                  </label>
+                  <div *ngIf="uploaders" class="col-md-3">
+                    <input #uploadersElem type="file" id="files-{{assignmentSection.id}}" class="hidden" ng2FileSelect [uploader]="uploaders[assignmentSection.id]" [disabled]="assignmentSection.answer || uploaders[assignmentSection.id].queue.length > 0" />
+                    <button *ngIf="assignmentSection.answer || uploaders[assignmentSection.id].queue.length > 0" type="button" class="btn btn-primary btn-info btn-files btn-sm" disabled><fa name="upload"></fa> Sélectionner un fichier</button>
+                    <label *ngIf="!(assignmentSection.answer || uploaders[assignmentSection.id].queue.length > 0)" class="btn btn-primary btn-info btn-files btn-sm" for="files-{{assignmentSection.id}}"><fa name="upload"></fa> Sélectionner un fichier</label>
+                  </div>
+                  <div *ngIf="uploaders" class="col-md-6">
+                    <div class="input-group table-files">
+                      <table class="table">
+                        <tbody>
+                        <tr *ngIf="assignmentSection.answer">
+                          <td>
+                            <strong>{{ assignmentSection.answer }}</strong>
+                          </td>
+                          <td class="pull-right">
+                            <button type="button" class="btn btn-danger btn-xs" (click)="removeFile(assignmentSection.id)">
+                              <span class="glyphicon glyphicon-trash"></span> Supprimer
+                            </button>
+                          </td>
+                        </tr>
+                        <tr *ngFor="let item of uploaders[assignmentSection.id].queue">
+                          <td>
+                            <p><strong>{{ item?.file?.name }}</strong><p></p>
+                            <p *ngIf="uploadErrors[assignmentSection.id]" class="label label-danger">{{ uploadErrors[assignmentSection.id][0] }}</p>
+                          </td>
+                          <td class="pull-right">
+                            <button type="button" class="btn btn-danger btn-xs" (click)="removeQueuedItem(assignmentSection.id, item)">
+                              <span class="glyphicon glyphicon-trash"></span> Supprimer
+                            </button>
+                          </td>
+                        </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Link section -->
+            <div *ngIf="assignmentSection.section.section_type.id === 3" class="form-group">
+              <div class="row">
+                <div *ngIf="sectionControls[assignmentSection.section.order - 1].disabled" class="col-md-offset-1 col-md-10">
+                  <blockquote>
+                    <a target='_blank' [href]="assignmentSection.answer">{{ assignmentSection.answer }}</a>
+                  </blockquote>
+                </div>
+                <div *ngIf="!sectionControls[assignmentSection.section.order - 1].disabled" class="col-md-12">
+                  <label class="col-sm-3 control-label">URL de réponse</label>
+                  <div class="col-sm-9">
+                    <input type="url" class="form-control" formControlName="{{ assignmentSection.section.order - 1 }}" placeholder="http://"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="authService.user.role.id !== 3" class="row">
+        <div class="col-sm-8">
+          Devoir à effectuer du <strong>{{ assignment.evaluation.date_start_assignment | date:'dd/MM/yyyy à HH:mm' }}</strong>
+          au <strong>{{ assignment.evaluation.date_end_assignment | date:'dd/MM/yyyy à HH:mm' }}</strong>
+          <span class="help-block">Vous pouvez modifier votre devoir jusqu'à la date limite de rendu des devoirs</span>
+        </div>
+        <div class="col-sm-4">
+          <button type="submit" (click)="saveAssignment(false)" class="btn btn-primary btn-success pull-right" [disabled]="!assignmentForm.valid">
+            <fa name="upload"></fa> Envoyer
+          </button>
+          <button type="submit" [disabled]="!assignment.draft || assignment.date_submission" (click)="saveAssignment(true)" class="btn btn-primary btn-info pull-right">
+            <fa name="floppy-o"></fa> Enregistrer le brouillon
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+
+
+  <!-- Feedback modal -->
+  <!--div class="modal fade" id="feedbacksModal">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Commentaires</h4>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div ng-if="vm.feedbacks.marks && vm.feedbacks.marks.length > 0">
+              <h5>Notes</h5>
+              <div class="col-sm-12" ng-repeat="mark in vm.feedbacks.marks">
+                <span class="col-sm-offset-1 col-sm-6" ng-bind-html="mark.description"></span>
+                <span class="col-sm-1" ng-bind-html="mark.mark"></span>
+              </div>
+            </div>
+            <div class="col-sm-12" ng-if="vm.feedbacks.teacher_comments && vm.feedbacks.teacher_comments.length > 0">
+              <h5>Commentaires de l'enseignant</h5>
+              <div ng-repeat="teacher_comments in vm.feedbacks.teacher_comments">
+                <span ng-bind-html="teacher_comments.comments"></span>
+              </div>
+            </div>
+            <div class="col-sm-12" ng-if="vm.feedbacks.students_comments && vm.feedbacks.students_comments.length > 0">
+              <h5>Commentaires des correcteurs</h5>
+              <div ng-repeat="student_comments in vm.feedbacks.students_comments">
+                <span ng-bind-html="student_comments.comments"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div-->
+
+  <div *ngIf="view_instructions" class="view-side-form">
+    <app-assignment-instructions [assignment]="assignment" [(getViewInstructions)]="view_instructions"></app-assignment-instructions>
+  </div>
+
+  <div *ngIf="assignmentForm">
+    <pre *ngIf="environment.debug_log">Value: {{ assignmentForm.value | json }}</pre>
+    <pre *ngIf="environment.debug_log">Validation status: {{ assignmentForm.status }}</pre>
+  </div>
+
+</div>

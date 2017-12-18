@@ -1,0 +1,44 @@
+//IMPORT
+@import '_var.scss';
+
+#statistics {
+
+  div.block {
+
+    a {
+      display: inline-block;
+    }
+  }
+
+  th {
+    vertical-align: bottom;
+    padding-bottom: 10px;
+  }
+  th.th-rotate {
+    height: 155px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  th.th-rotate > div {
+    transform: translate(25px, 51px) rotate(315deg);
+    width: 60px;
+  }
+  th.th-rotate > div > span {
+    border-bottom: 1px solid #ccc;
+    padding: 5px 10px;
+    font-weight: 300;
+  }
+  th.th-rotate > div > span > span.bold,
+  th.th-rotate > div > span.bold {
+    font-weight: bold;
+  }
+
+  .stats-table-wrapper {
+    width: 100%;
+    overflow-x: scroll;
+  }
+  .author-detail-lg {
+    padding: 5px 25px 5px 0;
+  }
+
+}

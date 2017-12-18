@@ -1,0 +1,18 @@
+<!-- Navbar Horizontale -->
+<div id="navbar">
+
+  <div id="navbar-brand">
+    <a><img src="{{ environment.assets_path }}/assets/img/logo.png"></a>
+  </div>
+
+  <div id="navbar-nav">
+    <ul>
+      <li><a> Plate-forme d’évaluation par les pairs</a></li>
+      <span *ngIf="authService.loggedIn()">
+        <li class="pull-right" (click)="logout()"><fa name="sign-out"></fa> Se déconnecter</li>
+        <li class="pull-right" (click)="toProfile()"><fa name="user"></fa> Mon profil</li>
+      </span>
+    </ul>
+  </div>
+
+</div>

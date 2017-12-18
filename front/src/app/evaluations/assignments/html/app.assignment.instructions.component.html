@@ -1,0 +1,46 @@
+<div id="assignment-instructions" class="container-fluid sidebar-slider" [@slideInOutAnimation]>
+
+  <button type="button" class="close" (click)="cancel()"><fa name="close"></fa></button>
+
+  <div class="col-md-12">
+    <h1 class="page-header">Sujet</h1>
+  </div>
+
+  <div class="col-md-12">
+    <div *ngIf="!assignment.evaluation.subject" class="alert alert-warning">
+      Le sujet du devoir n'a pas été défini
+    </div>
+    <div *ngIf="assignment.evaluation.subject" [innerHtml]="assignment.evaluation.subject"></div>
+    <div *ngIf="assignment.evaluation.subject_files.length > 0">
+      <h4><small>Fichiers sujet</small></h4>
+      <ul>
+        <li *ngFor="let subject_file of assignment.evaluation.subject_files">
+          <a target="_blank" href="{{ environment.upload_url + 'evaluations/' + assignment.evaluation.id + '/subject_files/' + subject_file.file_name }}">{{ subject_file.file_name }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="col-md-12">
+
+  <div class="col-md-12">
+    <h1 class="page-header">Consignes</h1>
+  </div>
+
+  <div class="col-md-12">
+    <div *ngIf="!assignment.evaluation.assignment_instructions" class="alert alert-warning">
+      Les consignes du devoir n'ont pas été définies
+    </div>
+    <div *ngIf="assignment.evaluation.assignment_instructions" [innerHtml]="assignment.evaluation.assignment_instructions"></div>
+    <div *ngIf="assignment.evaluation.example_assignments.length > 0">
+      <h4><small>Exemples de devoirs</small></h4>
+      <ul>
+        <li *ngFor="let example_assignment of assignment.evaluation.example_assignments">
+          <i class="fa fa-file-o"></i>
+          <a target='_blank' href="{{ environment.upload_url + 'evaluations/' + assignment.evaluation.id + '/example_assignments/' + example_assignment.file_name }}">{{ example_assignment.file_name }}</a> <!-- Add a function to get the file path and access it -->
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,26 @@
+<div class="container-fluid" [@routerAnimation]>
+  <div class="col-sm-12">
+    <h1 class="page-header">Mes groupes</h1>
+  </div>
+
+  <div *ngIf="groups" class="col-sm-12">
+    <div *ngIf="!(groups.length > 0)" class="col-sm-12 alert alert-warning">
+      Vous n'êtes affecté à aucun groupe
+    </div>
+    <div *ngFor="let group of groups" class="col-sm-6">
+      <div class="cafpa-card">
+        <h3>{{ group.name }}</h3>
+        <hr>
+        <h4>Elèves</h4>
+        <div>
+          <div *ngFor="let student of group.users; let last = last" class="col-sm-6">
+            {{ student.first_name }} {{ student.last_name }}
+            <div *ngIf="!last">
+              <hr>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

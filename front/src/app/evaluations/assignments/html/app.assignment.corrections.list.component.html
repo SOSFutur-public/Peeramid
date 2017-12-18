@@ -1,0 +1,50 @@
+<div class="container-fluid" [@routerAnimation]>
+  <div class="col-sm-12">
+    <h1 class="page-header">Mes corrections {{ getFrenchStatus(status) }}</h1>
+  </div>
+
+  <div class="col-sm-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-user"></i>
+          Corrections individuelles {{ status === 'finished' ? 'terminées' : 'en cours' }}
+        </h3>
+      </div>
+      <div *ngIf="corrections" class="panel-body">
+        <div *ngIf="!(corrections.individual_corrections.length > 0)" class="col-sm-12 alert alert-warning">
+          Vous n'avez pas de corrections individuelles  {{ status === 'finished' ? 'terminées' : 'en cours' }}
+        </div>
+        <div class="col-sm-12" *ngFor="let individual_correction of corrections.individual_corrections; let last = last">
+          <app-assignment-correction-summary [correction]="individual_correction"></app-assignment-correction-summary>
+          <div *ngIf="!last" class="col-sm-12">
+            <hr>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-users"></i>
+          Corrections de groupe {{ status === 'VALIDATED' ? 'terminées' : 'en cours' }}
+        </h3>
+      </div>
+      <div *ngIf="corrections" class="panel-body">
+        <div *ngIf="!(corrections.group_corrections.length > 0)" class="col-sm-12 alert alert-warning">
+          Vous n'avez pas de corrections de groupe {{ status === 'finished' ? 'terminées' : 'en cours' }}
+        </div>
+        <div class="col-sm-12" *ngFor="let group_correction of corrections.group_corrections; let last = last">
+          <app-assignment-correction-summary [correction]="group_correction"></app-assignment-correction-summary>
+          <div *ngIf="!last" class="col-sm-12">
+            <hr>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,91 @@
+<div *ngIf="evaluation" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-md-12">
+
+    <h1 class="page-header">
+      Options de notation
+      <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+        <fa name="arrow-left"></fa> Retour aux statistiques
+      </button>
+    </h1>
+
+    <form *ngIf="parametersForm" class="form-horizontal validated-form" [formGroup]="parametersForm" (ngSubmit)="saveParameters()" novalidate autocomplete="off">
+
+        <!-- Error -->
+        <div *ngIf="invalidForm" class="col-sm-12">
+          <div class="alert alert-danger">
+            Votre formulaire est invalide. Merci de le corriger avant de valider.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Calcul de la note finale</label>
+          <div class="col-sm-9 radio">
+            <div class="row">
+              <label *ngFor="let markMode of markModes" class="col-sm-12">
+                <input type="radio" [value]="markMode.id" formControlName="markMode">
+                {{ markMode.description }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Appliquer la note du professeur</label>
+          <div class="col-sm-9 radio">
+            <div class="row">
+              <label class="col-sm-12">
+                <input type="radio" [value]="true" formControlName="useTeacherMark">
+                Oui
+              </label>
+              <label class="col-sm-12">
+                <input type="radio" [value]="false" formControlName="useTeacherMark">
+                Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Précision de la note finale</label>
+          <div class="col-sm-9 radio">
+            <div class="row">
+              <label *ngFor="let markPrecisionMode of markPrecisionModes" class="col-sm-12">
+                <input type="radio" [value]="markPrecisionMode.id" formControlName="markPrecisionMode">
+                {{ markPrecisionMode.description }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-3 control-label">Calcul de la note finale</label>
+          <div class="col-sm-9 radio">
+            <div class="row">
+              <label *ngFor="let markRoundMode of markRoundModes" class="col-sm-12">
+                <input type="radio" [value]="markRoundMode.id" formControlName="markRoundMode">
+                {{ markRoundMode.description }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+      <hr>
+
+      <div *ngIf="!isFinished()" class="row">
+        <div class="col-sm-12">
+          <button type="submit" class="btn btn-primary btn-success pull-right"><fa name="floppy-o"></fa> Enregistrer les modifications</button>
+          <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()"><fa name="arrow-left"></fa> Retour aux statistiques</button>
+        </div>
+      </div>
+
+      <div *ngIf="environment.debug_log">
+        <pre>Value: {{ parametersForm.value | json }}</pre>
+        <pre>Validation status: {{ parametersForm.status }}</pre>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

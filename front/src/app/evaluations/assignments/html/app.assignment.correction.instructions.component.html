@@ -1,0 +1,16 @@
+<div id="correction-instructions" class="container-fluid sidebar-slider" [@slideInOutAnimation]>
+
+  <button type="button" class="close" (click)="cancel()"><fa name="close"></fa></button>
+
+  <div class="col-md-12">
+    <h1 class="page-header">Consignes</h1>
+  </div>
+
+  <div class="col-md-12">
+    <div *ngIf="correction.assignment.evaluation.correction_instructions" [innerHtml]="correction.assignment.evaluation.correction_instructions"></div>
+    <div *ngIf="!correction.assignment.evaluation.correction_instructions" class="alert alert-warning">
+      Les consignes de correction n'ont pas été définies
+    </div>
+  </div>
+
+</div>

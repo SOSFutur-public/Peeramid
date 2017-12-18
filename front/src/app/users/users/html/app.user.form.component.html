@@ -1,0 +1,213 @@
+<form *ngIf="userForm" class="form-horizontal validated-form" [formGroup]="userForm" (ngSubmit)="saveUser()" novalidate autocomplete="off">
+
+  <pre *ngIf="environment.debug_log">Value: {{ user | json }}</pre>
+
+  <!-- Error -->
+  <div *ngIf="invalidForm">
+    <div class="col-lg-12 alert alert-danger">
+      Votre formulaire est invalide. Merci de le corriger avant de valider.
+    </div>
+  </div>
+
+  <!-- Last name input -->
+  <div *ngIf="!itself" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['lastName'].length > 0) || (backChecks && backChecks['lastName'].length > 0 && lastNameControl.pristine), 'has-success': saveChecks && !(saveChecks['lastName'].length > 0)}">
+        <label class="col-sm-2 control-label">Nom</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" formControlName="lastName" placeholder="Nom"/>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[lastNameControl]" [frontCheck]="saveChecks['lastName']" [backCheck]="backChecks['lastName']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- First name input -->
+  <div *ngIf="!itself" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['firstName'].length > 0) || (backChecks && backChecks['firstName'].length > 0 && firstNameControl.pristine), 'has-success': saveChecks && !(saveChecks['firstName'].length > 0)}">
+        <label class="col-sm-2 control-label">Prénom</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" formControlName="firstName" placeholder="Prénom"/>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[firstNameControl]" [frontCheck]="saveChecks['firstName']" [backCheck]="backChecks['firstName']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email input -->
+  <div *ngIf="!itself" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['email'].length > 0) || (backChecks && backChecks['email'].length > 0 && emailControl.pristine), 'has-success': saveChecks && !(saveChecks['email'].length > 0)}">
+        <label class="col-sm-2 control-label">Email</label>
+        <div class="col-sm-10">
+          <input type="email" class="form-control" formControlName="email" placeholder="Email"/>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[emailControl]" [frontCheck]="saveChecks['email']" [backCheck]="backChecks['email']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Username input -->
+  <div *ngIf="!itself" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['username'].length > 0) || (backChecks && backChecks['username'].length > 0 && usernameControl.pristine), 'has-success': saveChecks && !(saveChecks['username'].length > 0)}">
+        <label class="col-sm-2 control-label">Identifiant</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" formControlName="username" placeholder="Identifiant"/>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[usernameControl]" [frontCheck]="saveChecks['username']" [backCheck]="backChecks['username']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <fieldset *ngIf="user.id" formGroupName="passwordGroup" [ngClass]="{'has-error': userForm.controls.passwordGroup.errors && (passwordControl.dirty || passwordControl.touched) && (passwordConfirmControl.dirty || passwordConfirmControl.touched)}">
+
+    <!-- Password input -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['password'].length > 0) || (backChecks && backChecks['password'].length > 0 && passwordControl.pristine), 'has-success': saveChecks && !(saveChecks['password'].length > 0)}">
+          <label class="col-sm-2 control-label">Mot de passe</label>
+          <div class="col-sm-10">
+            <input type="password" class="form-control" formControlName="password" placeholder="Mot de passe"/>
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[passwordControl]" [frontCheck]="saveChecks['password']" [backCheck]="backChecks['password']"></app-core-form-errors>
+            <div *ngIf="passwordControl.errors && (passwordControl.dirty || passwordControl.touched)">
+              <p *ngIf="passwordControl.errors.NotStrongPassword" class="label label-danger">
+                Le mot de passe n'est pas assez robuste : min. 8 caractères et au moins 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Confirmation input -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['passwordConfirm'].length > 0) || (backChecks && backChecks['passwordConfirm'].length > 0 && passwordConfirmControl.pristine), 'has-success': saveChecks && !(saveChecks['passwordConfirm'].length > 0)}">
+          <label class="col-sm-2 control-label">Confirmation du mot de passe</label>
+          <div class="col-sm-10">
+            <input type="password" class="form-control" formControlName="passwordConfirm" placeholder="Mot de passe"/>
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[passwordConfirmControl]" [frontCheck]="saveChecks['passwordConfirm']" [backCheck]="backChecks['passwordConfirm']"></app-core-form-errors>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </fieldset>
+
+  <!-- Drop down menu for lessons selection -->
+  <div *ngIf="!itself" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['lessons'].length > 0) || (backChecks && backChecks['lessons'].length > 0 && lessonsControl.pristine), 'has-success': saveChecks && !(saveChecks['lessons'].length > 0)}">
+        <label class="col-sm-2 control-label">Cours</label>
+        <div class="col-sm-10">
+          <ss-multiselect-dropdown *ngIf="lessons.length > 0" [options]="lessons" [texts]="lessonsSelectTexts" [settings]="multipleSelectSettings" formControlName="lessons"></ss-multiselect-dropdown>
+          <p *ngIf="!(lessons.length > 0)" class="none">
+            Aucun cours n'est disponible...
+          </p>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[lessonsControl]" [frontCheck]="saveChecks['lessons']" [backCheck]="backChecks['lessons']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drop down menu for groups selection -->
+  <div *ngIf="!itself && user.role.checkRole('student')" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['groups'].length > 0) || (backChecks && backChecks['groups'].length > 0 && groupsControl.pristine), 'has-success': saveChecks && !(saveChecks['groups'].length > 0)}">
+        <label class="col-sm-2 control-label">Groupes</label>
+        <div class="col-sm-10">
+          <ss-multiselect-dropdown *ngIf="groups.length > 0" [options]="groups" [texts]="groupsSelectTexts" [settings]="multipleSelectSettings" formControlName="groups"></ss-multiselect-dropdown>
+          <p *ngIf="!(groups.length > 0)" class="none">
+            Aucun groupe n'est disponible...
+          </p>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[groupsControl]" [frontCheck]="saveChecks['groups']" [backCheck]="backChecks['groups']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image upload -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label class="col-sm-2 control-label">
+          Image
+          <p class="info">
+            <span>
+              Types de fichiers autorisés:
+              <span *ngFor="let imagesFileType of filesTypesSetting; let lastImagesFileType = last">
+                {{ imagesFileType.type }}<span *ngIf="!lastImagesFileType">, </span>
+              </span>
+              <br>
+            </span>
+            Taille maximale: {{ filesMaxSizeSetting }}Mo
+          </p>
+        </label>
+        <div class="col-md-3">
+          <input #uploaderElem type="file" id="files" class="hidden" ng2FileSelect [uploader]="uploader" [disabled]="user.image || uploader.queue.length > 0"/>
+          <button *ngIf="user.image || uploader.queue.length > 0" type="button" class="btn btn-primary btn-info btn-files" disabled><fa name="upload"></fa> Sélectionner une image</button>
+          <label *ngIf="!(user.image || uploader.queue.length > 0)" class="btn btn-primary btn-info btn-files" for="files"><fa name="upload"></fa> Sélectionner une image</label>
+        </div>
+        <div class="col-md-7">
+          <div class="input-group table-files">
+            <table class="table">
+              <tbody>
+              <tr *ngIf="user.image">
+                <td><strong>{{ user.image }}</strong></td>
+                <td class="pull-right">
+                  <button type="button" class="btn btn-danger btn-xs" (click)="removeFile()">
+                    <span class="glyphicon glyphicon-trash"></span> Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngFor="let item of uploader.queue">
+                <td>
+                  <p><strong>{{ item?.file?.name }}</strong></p>
+                  <div *ngIf="saveChecks !== null && saveChecks['imageFile'].length > 0 && (importControl.dirty || importControl.touched)">
+                    <div class="errors">
+                      <p class="label label-danger">
+                        {{ saveChecks['imageFile'] }}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td class="pull-right">
+                  <button type="button" class="btn btn-danger btn-xs" (click)="removeQueuedFile(item)">
+                    <span class="glyphicon glyphicon-trash"></span> Supprimer
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Save button popover's template -->
+  <ng-template #savePopover>
+    <p *ngFor="let check of formService.checksToArray(saveChecks, saveControls)">
+      <strong>{{ check }}</strong> invalide.
+    </p>
+  </ng-template>
+
+  <!-- Save button -->
+  <div class="row">
+    <div class="col-md-12">
+      <div *ngIf="!formService.checkEmptyChecks(saveChecks)" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" container="body" triggers="mouseenter:mouseleave">
+        <button type="button" disabled class="btn btn-primary btn-success"><fa name="floppy-o"></fa> {{ user.id ? 'Enregistrer les modifications' : 'Créer cet ' + (user.role.id === 2 ? 'étudiant' : 'enseignant') }}</button>
+      </div>
+      <button *ngIf="formService.checkEmptyChecks(saveChecks)" type="submit" class="btn btn-primary btn-success pull-right"><fa name="floppy-o"></fa> {{ user.id ? 'Enregistrer les modifications' : 'Créer cet ' + (user.role.id === 2 ? 'étudiant' : 'enseignant') }}</button>
+      <button type="button" class="btn btn-danger pull-right" (click)="cancel()"><fa name="times"></fa> Annuler</button>
+    </div>
+  </div>
+
+  <pre *ngIf="environment.debug_log">Value: {{ userForm.value | json }}</pre>
+  <pre *ngIf="environment.debug_log">Validation status: {{ userForm.status }}</pre>
+
+</form>

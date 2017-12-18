@@ -1,0 +1,35 @@
+<div id="correction-opinion" class="container-fluid sidebar-slider" [@slideInOutAnimation]>
+
+  <button type="button" class="close" (click)="cancel()"><fa name="close"></fa></button>
+
+  <div class="col-md-12">
+    <h1 class="page-header">Votre avis sur cette correction</h1>
+  </div>
+
+  <div class="col-md-12">
+    <form *ngIf="opinionForm" [formGroup]="opinionForm" class="form-horizontal validated-form" novalidate autocomplete="off">
+      <div class="row">
+        <div class="form-group">
+          <label class="col-md-3 control-label label-opinion-avis">Avis</label>
+          <div class="col-md-9">
+            <div class="opinion">
+              <img src="{{ environment.assets_path }}/assets/img/like.png" [ngClass]="{'selected': opinionControl.value > 0}" (click)="setOpinion(1)" />
+              <img src="{{ environment.assets_path }}/assets/img/dislike.png" [ngClass]="{'selected': opinionControl.value < 0}" (click)="setOpinion(-1)" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-md-12">
+            <textarea class="form-control" formControlName="comments" id="wysiwyg-comments" value=""></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!finished" class="col-md-12">
+        <button type="button" (click)="saveOpinion()" class="btn btn-primary btn-success pull-right"><fa name="floppy-o"></fa> Enregistrer l'opinion</button>
+        <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()"><fa name="times"></fa> Annuler</button>
+      </div>
+    </form>
+  </div>
+
+</div>

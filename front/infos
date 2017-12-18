@@ -1,0 +1,23 @@
+//Mise à jour des plugins via NPM
+--1x--
+npm install -g npm-check-updates
+-> Voir les plugins dépassés
+npm outdated
+ncu
+--> Les mettre à jour
+ncu -u
+
+
+
+
+//"@ng-bootstrap/ng-bootstrap": "^1.0.0-beta.1",
+//"angular-2-dropdown-multiselect": "^1.5.4",
+//"angular-font-awesome": "^2.0.3",
+//"ng-autofocus": "0.0.23",
+//"ng2-file-upload": "^1.2.1",
+//"ng2-select": "^1.2.0",
+//"ng2-select-compat": "^1.3.1",
+
+//npm uninstall -g angular-cli
+//npm cache clean
+//npm install -g @angular/cli@latest

@@ -1,0 +1,49 @@
+<!-- Menubar Vertical -->
+<div *ngIf="authService.loggedIn() && authService.user !== null" id="menubar">
+
+  <div id="menubar-user" class="text-center">
+    <!--img [src]="authService.userImage"-->
+    <img [src]="authService.user.displayImage()">
+    <h3>{{ authService.user.name(true) }}</h3>
+    <h5>{{ authService.user.role.getRole() }}</h5>
+  </div>
+
+  <div id="menubar-menu">
+    <ul *ngIf="authService.checkRole(['admin'])">
+      <li [routerLink]="['/admin/home']" [routerLinkActive]="['active']" class="li-cursor"><fa name="home"></fa> Tableau de bord</li>
+      <li [routerLink]="['/admin/lessons']" [routerLinkActive]="['active']" class="li-cursor"><fa name="table"></fa> Cours</li>
+      <li [routerLink]="['/admin/students']" [routerLinkActive]="['active']" class="li-cursor"><fa name="user"></fa> Étudiants</li>
+      <li [routerLink]="['/admin/teachers']" [routerLinkActive]="['active']" class="li-cursor"><fa name="graduation-cap"></fa> Enseignants</li>
+      <li [routerLink]="['/admin/groups']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact: false}" class="li-cursor"><fa name="users"></fa> Groupes</li>
+      <li [routerLink]="['/admin/settings']" [routerLinkActive]="['active']" class="li-cursor"><fa name="cog"></fa> Paramètres</li>
+    </ul>
+    <ul *ngIf="this.authService.checkRole(['student'])">
+      <li [routerLink]="['/student/home']" [routerLinkActive]="['active']" class="li-cursor"><fa name="home"></fa> Tableau de bord</li>
+      <li [routerLink]="['/student/lessons']" [routerLinkActive]="['active']" class="li-cursor"><fa name="table"></fa> Mes cours</li>
+      <li><fa name="book"></fa> Mes devoirs</li>
+      <li [routerLink]="['/student/assignments/in-progress']" [routerLinkActive]="['active']" class="li-cursor li-indent"><fa name="spinner"></fa> En cours</li>
+      <li [routerLink]="['/student/assignments/finished']" [routerLinkActive]="['active']" class="li-cursor li-indent"><fa name="check"></fa> Terminés</li>
+      <li><fa name="pencil"></fa> Mes corrections</li>
+      <li [routerLink]="['/student/corrections/in-progress']" [routerLinkActive]="['active']" class="li-cursor li-indent"><fa name="spinner"></fa> En cours</li>
+      <li [routerLink]="['/student/corrections/finished']" [routerLinkActive]="['active']" class="li-cursor li-indent"><fa name="check"></fa> Terminées</li>
+      <li [routerLink]="['/student/groups']" [routerLinkActive]="['active']" class="li-cursor"><fa name="users"></fa> Mes groupes</li>
+    </ul>
+    <ul *ngIf="this.authService.checkRole(['teacher'])">
+      <li [routerLink]="['/teacher/home']" [routerLinkActive]="['active']" class="li-cursor"><fa name="home"></fa> Tableau de bord</li>
+      <li [routerLink]="['/teacher/lessons']" [routerLinkActive]="['active']" class="li-cursor"><fa name="table"></fa> Cours</li>
+      <li><fa name="files-o"></fa> Devoirs et évaluations</li>
+      <li [routerLinkActive]="['active']" class="li-cursor li-indent" [ngClass]="{'menubar-disabled': isRoutingAvoided()}" (click)="displayList('/teacher/evaluations/draft')"><fa name="file-text-o"></fa> Brouillons</li>
+      <li [routerLinkActive]="['active']" class="li-cursor li-indent" [ngClass]="{'menubar-disabled': isRoutingAvoided()}" (click)="displayList('/teacher/evaluations/incoming')"><fa name="clock-o"></fa> À venir</li>
+      <li [routerLinkActive]="['active']" class="li-cursor li-indent" [ngClass]="{'menubar-disabled': isRoutingAvoided()}" (click)="displayList('/teacher/evaluations/in-progress')"><fa name="spinner"></fa> En cours</li>
+      <li [routerLinkActive]="['active']" class="li-cursor li-indent" [ngClass]="{'menubar-disabled': isRoutingAvoided()}" (click)="displayList('/teacher/evaluations/finished')"><fa name="check"></fa> Terminés</li>
+      <li [routerLinkActive]="['active']" class="li-cursor li-indent" [ngClass]="{'menubar-disabled': isRoutingAvoided()}" (click)="displayList('/teacher/evaluations/archived')"><fa name="archive"></fa> Archivés</li>
+      <li [routerLink]="['/teacher/evaluation/new']" [routerLinkActive]="['active']" class="li-cursor li-indent"><fa name="plus"></fa> Ajouter</li>
+    </ul>
+  </div>
+
+  <div id="menubar-footer">
+    <div id="version">v*{{ environment.version }}</div>
+    <div id="sosf">Powered by SOS FUTUR</div>
+  </div>
+
+</div>

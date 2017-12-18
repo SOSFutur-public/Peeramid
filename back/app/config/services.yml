@@ -1,0 +1,68 @@
+
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/book/service_container.html
+parameters:
+#    parameter_name: value
+
+services:
+  get_set_method_normalizer:
+        class: Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer
+        public: false
+        tags:
+            - { name: serializer.normalizer }
+  app.services.cryptor:
+    class: AppBundle\Service\CryptService
+
+  app.services.evaluation:
+    class: AppBundle\Service\EvaluationService
+    arguments: ["@logger", "@doctrine.orm.entity_manager"]
+  app.services.stats:
+    class: AppBundle\Service\StatsService
+    arguments: ["@logger", "@doctrine.orm.entity_manager"]
+  app.services.assignment:
+    class: AppBundle\Service\AssignmentService
+    arguments: ["@doctrine.orm.entity_manager"]
+  app.services.correction:
+    class: AppBundle\Service\CorrectionService
+    arguments: ["@logger", "@doctrine.orm.entity_manager", "@service_container"]
+  app.services.correction_opinion:
+    class: AppBundle\Service\CorrectionOpinionService
+    arguments: ["@doctrine.orm.entity_manager"]
+  jwt_token_authenticator:
+    class: AppBundle\Security\JwtTokenAuthenticator
+    autowire: true
+  app.validator.max_size:
+    class: AppBundle\Validator\MaxSizeValidator
+    arguments: ["@doctrine.orm.entity_manager"]
+    tags:
+      - { name: validator.constraint_validator, alias: max_size_validator }
+  app.validator.collection_same_item:
+      class: AppBundle\Validator\CollectionSameItemValidator
+      tags:
+          - { name: validator.constraint_validator }
+  app.service.doctrine_listener:
+      class: AppBundle\Service\DoctrineListener
+      arguments: ['@service_container']
+      tags:
+      - { name: doctrine.event_subscriber, connection: default }
+  app.services.log_connection:
+     class: AppBundle\Service\LogService
+     arguments: ["@doctrine.orm.entity_manager"]
+  app.service.validator:
+      class: AppBundle\Service\ValidatorService
+      arguments: ['@service_container']
+  app.services.upload:
+     class: AppBundle\Service\UploadService
+     arguments: ["@doctrine.orm.entity_manager"]
+  app.service.access_service:
+      class: AppBundle\Service\AccessService
+      arguments: ['@service_container']
+  app.service.mail_service:
+      class: AppBundle\Service\MailService
+      arguments: ['@service_container']
+  app.service.exception_listener:
+      class: AppBundle\Service\ExceptionListener
+      tags:
+          - { name: kernel.event_listener, event: kernel.exception }
+  app.service.format_service:
+      class: AppBundle\Service\FormatService

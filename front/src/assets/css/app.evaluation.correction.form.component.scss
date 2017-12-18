@@ -1,0 +1,35 @@
+//IMPORT
+@import '_var.scss';
+
+tabset.correction-sections {
+
+  .section-row {
+    border: 1px solid #ddd;
+    border-top: none;
+    padding: 10px;
+
+    .section-subject {
+      border-right: 1px dashed #ddd;
+    }
+  }
+
+}
+
+#correction-attributions {
+
+  table {
+    border: 1px solid #eee;
+    padding: 20px;
+
+    thead {
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    tr {
+      padding: 15px;
+    }
+  }
+
+}
+

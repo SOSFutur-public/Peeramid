@@ -1,0 +1,50 @@
+<div class="container-fluid" [@routerAnimation]>
+  <div class="col-sm-12">
+    <h1 class="page-header">Mes devoirs {{ getFrenchStatus(status) }}</h1>
+  </div>
+
+  <div class="col-sm-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-user"></i>
+          Devoirs individuels {{ status === 'finished' ? 'terminés' : 'en cours' }}
+        </h3>
+      </div>
+      <div *ngIf="assignments" class="panel-body">
+        <div *ngIf="!(assignments.individual_assignments.length > 0)" class="col-sm-12 alert alert-warning">
+          Vous n'avez pas de devoirs individuels {{ status === 'finished' ? 'terminés' : 'en cours' }}
+        </div>
+        <div class="col-sm-12" *ngFor="let individual_assignment of assignments.individual_assignments; let last = last">
+          <app-assignment-summary [assignment]="individual_assignment"></app-assignment-summary>
+          <div *ngIf="!last" class="col-sm-12">
+            <hr>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-users"></i>
+          Devoirs de groupe {{ status === 'finished' ? 'terminés' : 'en cours' }}
+        </h3>
+      </div>
+      <div *ngIf="assignments" class="panel-body">
+        <div *ngIf="!(assignments.group_assignments.length > 0)" class="col-sm-12 alert alert-warning">
+          Vous n'avez pas de devoirs de groupe {{ status === 'finished' ? 'terminés' : 'en cours' }}
+        </div>
+        <div class="col-sm-12" *ngFor="let group_assignment of assignments.group_assignments; let last = last">
+          <app-assignment-summary [assignment]="group_assignment"></app-assignment-summary>
+          <div *ngIf="!last" class="col-sm-12">
+            <hr>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

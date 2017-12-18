@@ -1,0 +1,61 @@
+<div class="container-fluid" [@routerAnimation]>
+  <div class="col-lg-12">
+    <h1 class="page-header">Tableau de bord</h1>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Gestion des cours</h3>
+      </div>
+      <div class="panel-body">
+        <div>
+          <a [routerLink]="['/admin/lesson/new']">Ajouter un cours</a>
+          <br/>
+          <a [routerLink]="['/admin/lessons']">Voir la liste des cours</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Gestion des étudiants</h3>
+      </div>
+      <div class="panel-body">
+        <div>
+          <a [routerLink]="['/admin/student/new']">Ajouter un étudiant</a>
+          <br/>
+          <a [routerLink]="['/admin/students']">Voir la liste des étudiants</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Gestion des enseignants</h3>
+      </div>
+      <div class="panel-body">
+        <div>
+          <a [routerLink]="['/admin/teacher/new']">Ajouter un enseignant</a>
+          <br/>
+          <a [routerLink]="['/admin/teachers']">Voir la liste des enseignants</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Gestion des groupes</h3>
+      </div>
+      <div class="panel-body">
+        <div>
+          <a [routerLink]="['/admin/group/new']">Ajouter un groupe</a>
+          <br/>
+          <a [routerLink]="['/admin/groups']">Voir la liste des groupes</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

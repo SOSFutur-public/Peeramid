@@ -1,0 +1,40 @@
+# To get started with security, check out the documentation:
+# http://symfony.com/doc/current/book/security.html
+security:
+
+    # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+    providers:
+        in_memory:
+            memory: ~
+       # auth_token_user_provider:
+       #     id: auth_token_user_provider
+#    role_hierarchy:
+#            ADMIN:       [ENSEIGNANT, ELEVE]
+#            ENSEIGNANT:  [ENSEIGNANT]
+#            ELEVE:       [ELEVE]
+#            ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ENSEIGNANT, ROLE_ELEVE, ROLE_ALLOWED_TO_SWITCH]
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern: ^/(css|images|js)/
+            security: false
+
+        main:
+            pattern: ^/(api/login|api/users/request-password|api/users/reset-password)
+            anonymous: ~
+
+        api:
+            pattern: ^/api
+            stateless: true
+            guard:
+                authenticators:
+                    - 'jwt_token_authenticator'
+    access_control:
+        # require ROLE_ADMIN for /admin*
+        - { path: ^/_profiler, roles: ROLE_ADMIN }
+    encoders:
+        AppBundle\Entity\User:
+            algorithm: bcrypt
+            cost: 12
+            
+    

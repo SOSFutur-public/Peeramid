@@ -1,0 +1,20 @@
+email_not_valid: Cette valeur n'est pas une adresse email valide.
+not_null: Cette valeur ne devrait pas être nulle.
+not_blank: Cette valeur ne devrait pas être vide.
+not_valid: Cette valeur n'est pas valide.
+greater_than_0: Cette valeur devrait être supérieure à 0.
+greater_than_var: Cette valeur devrait être supérieure %var% (%value%).
+lower_than_var: Cette valeur devrait être inférieure %var% (%value%).
+multiple_of_var: Cette valeur doit être un multiple de %var% (%value%).
+assignment_must_be_active: Cette valeur doit être 'true'.
+already_used: Cette valeur est déjà utilisée.
+at_least_1_section: Vous devez créer au moins une section.
+at_least_1_criteria: Vous devez créer au moins un critère par section.
+at_least_2_users: Vous devez sélectionner au moins deux étudiants.
+at_least_2_groups: Vous devez sélectionner au moins deux groupes.
+not_implemented: Cette fonctionnalité n'est pas encore implémentée.
+must_be_choice: La note doit correspondre à un choix.
+cannot_attribute: Vous ne pouvez pas attribuer des %var% à un devoir %individual%.
+user_in_groups: Un utilisateur ne peut pas être dans plusieurs groupes.
+draft: Vous ne pouvez plus rendre de brouillon une fois %var%.
+image: Ce fichier n'est pas une image valide.

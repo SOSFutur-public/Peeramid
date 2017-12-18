@@ -1,0 +1,14 @@
+<div *ngIf="front()">
+  <div *ngFor="let error of frontCheck" class="errors">
+    <p class="label label-danger">
+      {{ error }}
+    </p>
+  </div>
+</div>
+<div *ngIf="back()">
+  <div *ngFor="let error of backCheck" class="errors">
+    <p class="label label-danger">
+      {{ error }}
+    </p>
+  </div>
+</div>

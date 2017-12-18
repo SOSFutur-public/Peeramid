@@ -1,0 +1,30 @@
+<div *ngIf="evaluation" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-md-12">
+
+    <h1 class="page-header">
+      Proportions des notes
+      <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+        <fa name="arrow-left"></fa> Retour aux statistiques
+      </button>
+    </h1>
+
+    <div *ngIf="criteriaCharts && !loaderService.loading.getValue()" class="col-sm-12">
+      <div *ngFor="let section of evaluation.sections; let sectionIndex = index; let lastSection = last" class="col-sm-12">
+        <blockquote>
+          <h3>Section: {{ section.title }}</h3>
+        </blockquote>
+        <div *ngFor="let criteria of section.criterias; let criteriaIndex = index" class="col-sm-6 text-center">
+          <p *ngIf="criteriaCharts[sectionIndex][criteriaIndex] == null" class="alert alert-warning">
+            Ce critère ne possède pas de notes
+          </p>
+          <chart style="display: block" *ngIf="criteriaCharts[sectionIndex][criteriaIndex]" class="text-center" [options]="criteriaCharts[sectionIndex][criteriaIndex]"></chart>
+        </div>
+        <div *ngIf="!lastSection" class="col-sm-12">
+          <hr>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

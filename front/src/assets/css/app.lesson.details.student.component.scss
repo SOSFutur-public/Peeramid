@@ -1,0 +1,22 @@
+//IMPORT
+@import '_var.scss';
+
+#lesson {
+
+  .jumbotron{
+    height: 175px;
+    padding: 15px;
+
+    img{
+      max-width: 200px;
+      max-height: 150px;
+    }
+
+    .lesson-title{
+      padding-top: 20px;
+    }
+
+
+  }
+
+}

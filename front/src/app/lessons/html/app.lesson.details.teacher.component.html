@@ -1,0 +1,159 @@
+<div *ngIf="lesson" class="container-fluid" [@routerAnimation]>
+
+  <div class="row">
+    <div class="col-sm-2">
+      <!--img class="img-thumbnail" [src]="lesson.displayImage()"-->
+    </div>
+    <div class="col-sm-10">
+      <h2>
+        {{ lesson.name }}<br>
+        <small>{{ lesson.category.name }}</small>
+      </h2>
+    </div>
+  </div>
+
+  <hr>
+
+  <div *ngIf="lesson.description">
+    <p [innerHtml]="lesson.description"></p>
+    <hr>
+  </div>
+
+  <accordion class="col-lg-12">
+
+    <!-- Associated students list -->
+    <accordion-group *ngIf="students" [isOpen]="false" #studentsAccordion>
+      <div accordion-heading>
+        <span>Étudiants</span>
+        <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': studentsAccordion?.isOpen, 'glyphicon-chevron-right': !studentsAccordion?.isOpen}"></i>
+      </div>
+      <a class="btn btn-primary" [routerLink]="['/teacher/lesson', lesson.id, 'edit']">
+        <fa name="user"></fa> Gérer les étudiants
+      </a>
+      <table width="100%" class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th class="hidden-sm hidden-xs">
+            Nom
+          </th>
+          <th class="hidden-sm hidden-xs">
+            Prénom
+          </th>
+          <th class="hidden-sm hidden-xs">
+            Adresse mail
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let student of students">
+          <td>
+            {{ student.last_name }}
+          </td>
+          <td>
+            {{ student.first_name }}
+          </td>
+          <td>
+            {{ student.email }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <a class="pull-right btn btn-primary" [routerLink]="['/teacher/lesson', lesson.id, 'edit']">
+        <fa name="user"></fa> Gérer les étudiants
+      </a>
+    </accordion-group>
+
+    <!-- Associated teachers list -->
+    <accordion-group *ngIf="teachers" [isOpen]="false" #teachersAccordion>
+      <div accordion-heading>
+        <span>Enseignants</span>
+        <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': teachersAccordion?.isOpen, 'glyphicon-chevron-right': !teachersAccordion?.isOpen}"></i>
+      </div>
+      <table width="100%" class="table table-striped table-responsive table-hover">
+        <thead>
+        <tr>
+          <th class="hidden-sm hidden-xs">
+            Nom
+          </th>
+          <th class="hidden-sm hidden-xs">
+            Prénom
+          </th>
+          <th class="hidden-sm hidden-xs">
+            Adresse mail
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let teacher of teachers">
+          <td>
+            {{ teacher.last_name }}
+          </td>
+          <td>
+            {{ teacher.first_name }}
+          </td>
+          <td>
+            {{ teacher.email }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </accordion-group>
+
+    <!-- Associated evaluations list -->
+    <accordion-group *ngIf="lesson.evaluations" [isOpen]="false" #evaluationsAccordion>
+      <div accordion-heading>
+        <span>Évaluations</span>
+        <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': evaluationsAccordion?.isOpen, 'glyphicon-chevron-right': !evaluationsAccordion?.isOpen}"></i>
+      </div>
+      <table width="100%" class="table table-striped table-responsive table-hover" id="dataTables-example7">
+        <thead>
+        <tr>
+          <th class="hidden-sm hidden-xs">
+            Enseignant
+          </th>
+          <th class="hidden-sm hidden-xs">
+            Evaluation
+          </th>
+          <th class="text-center">
+            Date de fin de devoir
+          </th>
+          <th class="text-center">
+            Date de fin de correction
+          </th>
+          <th class="text-center">
+            Note moyenne des devoirs
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngIf="!(lesson.evaluations.length > 0)">
+          <td colspan="5"><i>Aucune évaluation</i></td>
+        </tr>
+        <tr *ngFor="let evaluation of lesson.evaluations">
+          <td>
+            {{ evaluation.teacher.name() }}
+          </td>
+          <td>
+            {{ evaluation.name }}
+          </td>
+          <td class="text-center">
+            {{ evaluation.date_end_assignment | date:'dd MMM yyyy à HH:mm'}}
+          </td>
+          <td class="text-center">
+            {{ evaluation.date_end_correction | date:'dd MMM yyyy à HH:mm'}}
+          </td>
+          <td class="text-center">
+            {{ evaluation.assignment_average }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </accordion-group>
+
+  </accordion>
+
+  <pre *ngIf="environment.debug_log">{{ lesson | json }}</pre>
+
+</div>
+
+

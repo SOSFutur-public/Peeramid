@@ -1,0 +1,30 @@
+<div *ngIf="correction" [@routerAnimation]>
+  <div class="col-md-2">
+    <img *ngIf="assets" [src]="correction.assignment.evaluation.lesson.displayImage()" class="img-thumbnail thumbnail-evaluation">
+  </div>
+  <div class="col-md-10">
+    <h3>
+      <i *ngIf="correction.assignment.evaluation.individual_correction" class="fa fa-user" title="Correction individuelle"></i>
+      <i *ngIf="!correction.assignment.evaluation.individual_correction" class="fa fa-users" title="Correction en groupe"></i>
+      {{ correction.assignment.evaluation.name }} <small>- {{ correction.assignment.evaluation.lesson.name }}</small>
+      <div class="pull-right">
+        <button type="button" class="btn btn-primary btn-xs" [routerLink]="['/student/correction/', correction.id, 'edit']">
+          <i class="fa {{ assets.icon }}"></i>
+          <span>{{ assets.action }}</span>
+        </button>
+      </div>
+    </h3>
+    <p *ngIf="!correction.assignment.evaluation.anonymity">
+      Devoir de {{ assets.author }}
+    </p>
+    <p *ngIf="correction.date_submission">
+      Correction effectuée le <strong>{{ correction.date_submission | date:'dd/MM/yyyy à HH:mm' }}</strong>
+    </p>
+    <p *ngIf="!correction.date_submission">
+      <strong>Correction non effectuée</strong>
+    </p>
+    <p *ngIf="!assets.finished">
+      Correction à faire avant le <strong>{{ correction.assignment.evaluation.date_end_correction | date:'dd/MM/yyyy à HH:mm' }}</strong>
+    </p>
+  </div>
+</div>

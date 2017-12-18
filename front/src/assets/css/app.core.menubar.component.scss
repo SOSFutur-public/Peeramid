@@ -1,0 +1,86 @@
+//IMPORT
+@import '_var.scss';
+
+
+#menubar{
+  width: $menubarWidth;
+  background: $menubarBackground;
+  position: fixed;
+  top: $navbarHeight;
+  bottom: 0;
+  color: #FFF;
+  border: $menubarBorder;
+  overflow-y: scroll;
+
+  #menubar-user{
+    margin: 20px 5px;
+    height: 200px;
+    /*border-bottom: $menubarBorder;*/
+    color: #000;
+
+    img{
+      max-width: $menubarWidth - 20px;
+      max-height: 120px;
+    }
+  }
+
+  #menubar-menu{
+    color: #555;
+    font-size: 15px;
+
+    ul{
+      @include listeNoStyle;
+
+      li{
+        border-bottom: $menubarBorder;
+        padding: 10px;
+
+        .menubar-disabled{
+          // opacity: 0.5;
+          // background: darkgray;
+        }
+
+        &:first-child{
+          border-top: $menubarBorder;
+        }
+        &.li-cursor:hover, &.li-cursor.active{
+          border-right: 4px solid $navbarBackground;
+          background: #eee;
+        }
+        &:focus{
+          outline-style: none;
+        }
+        &.li-cursor{
+          cursor: pointer;
+        }
+        &.li-indent{
+          padding-left: 40px;
+        }
+
+        *{
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        fa{
+          font-size: 20px;
+          width: 40px;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  #menubar-footer{
+    position: absolute;
+    /*bottom: 0;*/
+    color: #555;
+    font-size: 11px;
+    width: 100%;
+    padding: 20px 0 10px 0;
+
+    div{
+      text-align: center;
+    }
+  }
+}

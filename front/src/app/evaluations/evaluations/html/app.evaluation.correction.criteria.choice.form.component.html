@@ -1,0 +1,79 @@
+<div id="correction-criteria-choice" class="col-md-12">
+
+  <div class="table-responsive">
+    <table *ngIf="criteria.criteria_choices" class="table table-striped">
+      <thead [hidden]="criteria.criteria_choices.length === 1 && choiceTmp">
+      <tr>
+        <th>Choix</th>
+        <th>Note</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let choice of criteria.criteria_choices">
+        <td *ngIf="choice !== choiceTmp" class="col-sm-5">
+          {{ choice.name }}
+        </td>
+        <td *ngIf="choice !== choiceTmp" class="col-sm-1">
+          {{ choice.mark }}
+        </td>
+        <td *ngIf="choice !== choiceTmp" class="col-sm-2">
+          <button type="button" class="btn btn-primary btn-xs" [disabled]="choiceTmp" (click)="updateChoice(choice)">
+            <span class="fa fa-pencil-square-o fa-lg"></span>
+          </button>
+          <button type="button" class="btn btn-danger btn-xs" [disabled]="choiceTmp" (click)="deleteChoice(choice, criteria)">
+            <span class="fa fa-remove fa-lg"></span>
+          </button>
+        </td>
+        <!-- Choice update -->
+        <td *ngIf="choice === choiceTmp" colspan="3">
+          <form *ngIf="choiceTmp" [formGroup]="choiceForm" (ngSubmit)="saveChoice()" novalidate autocomplete="off">
+            <div *ngIf="criteria.criteria_choices.length > 0">
+              <hr>
+            </div>
+            <h3>
+              {{ choiceTmp ? 'Modifier le choix' : 'Nouveau critère' }}
+            </h3>
+
+            <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['choiceName'].length > 0) || (backChecks && backChecks['choiceName'].length > 0 && choiceNameControl.pristine), 'has-success': saveChecks && !(saveChecks['choiceName'].length > 0)}">
+              <label class="col-sm-3 control-label">Choix</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" formControlName="name" placeholder="Choix">
+                <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[choiceNameControl]" [frontCheck]="saveChecks['choiceName']" [backCheck]="backChecks['choiceName']"></app-core-form-errors>
+              </div>
+            </div>
+
+            <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['choiceMark'].length > 0) || (backChecks && backChecks['choiceMark'].length > 0 && choiceMarkControl.pristine), 'has-success': saveChecks && !(saveChecks['choiceMark'].length > 0)}">
+              <label class="col-sm-3 control-label">Note</label>
+              <div class="col-sm-9">
+                <input type="number" class="form-control" formControlName="mark" placeholder="Note">
+                <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[choiceMarkControl]" [frontCheck]="saveChecks['choiceMark']" [backCheck]="backChecks['choiceMark']"></app-core-form-errors>
+              </div>
+            </div>
+
+            <!-- Save button popover's template -->
+            <ng-template #savePopover>
+              <p *ngFor="let check of formService.checksToArray(saveChecks, saveControls)">
+                <strong>{{ check }}</strong> invalide.
+              </p>
+            </ng-template>
+
+            <div>
+              <div *ngIf="!formService.checkEmptyChecks(saveChecks)" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" container="body" triggers="mouseenter:mouseleave">
+                <button type="button" disabled class="btn btn-primary">Enregister le choix</button>
+              </div>
+              <button *ngIf="formService.checkEmptyChecks(saveChecks)" type="submit" class="btn btn-primary pull-right">Enregister le choix</button>
+              <button type="button" class="btn btn-danger pull-right" (click)="closeChoiceUpdate()">Annuler</button>
+            </div>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!displayChoiceForm" class="text-center">
+      <button type="button" class="btn btn-primary" (click)="createChoice()">
+        <fa name="plus"></fa> Ajouter un choix
+      </button>
+    </div>
+  </div>
+</div>

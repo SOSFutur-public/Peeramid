@@ -1,0 +1,89 @@
+main:
+    type: rest
+    resource: 'AppBundle\Controller\DefaultController'
+
+# A modifier suivant les bundles que l'on crééra.
+
+assignment:
+    type: rest
+    resource: 'AppBundle\Controller\AssignmentController'
+
+assignmentSection:
+    type: rest
+    resource: 'AppBundle\Controller\AssignmentSectionController'
+
+category:
+    type: rest
+    resource: 'AppBundle\Controller\CategoryController'
+
+correction:
+    type: rest
+    resource: 'AppBundle\Controller\CorrectionController'
+
+correctionOpinion:
+    type: rest
+    resource: 'AppBundle\Controller\CorrectionOpinionController'
+
+criteria:
+    type: rest
+    resource: 'AppBundle\Controller\CriteriaController'
+
+criteriaType:
+    type: rest
+    resource: 'AppBundle\Controller\CriteriaTypeController'
+
+evaluation:
+    type: rest
+    resource: 'AppBundle\Controller\EvaluationController'
+
+export:
+    type: rest
+    resource: 'AppBundle\Controller\ExportController'
+
+fileType:
+    type: rest
+    resource: 'AppBundle\Controller\FileTypeController'
+
+group:
+    type: rest
+    resource: 'AppBundle\Controller\GroupController'
+
+lesson:
+    type: rest
+    resource: 'AppBundle\Controller\LessonController'
+
+login:
+    type: rest
+    resource: 'AppBundle\Controller\LoginController'
+
+markMode:
+    type: rest
+    resource: 'AppBundle\Controller\MarkModeController'
+
+markPrecisionMode:
+    type: rest
+    resource: 'AppBundle\Controller\MarkPrecisionModeController'
+
+markRoundMode:
+    type: rest
+    resource: 'AppBundle\Controller\MarkRoundModeController'
+
+sectionType:
+    type: rest
+    resource: 'AppBundle\Controller\SectionTypeController'
+
+settings:
+    type: rest
+    resource: 'AppBundle\Controller\SettingController'
+
+user:
+    type: rest
+    resource: 'AppBundle\Controller\UserController'
+
+file:
+    type: rest
+    resource: 'AppBundle\Controller\FileController'
+
+error:
+    type: rest
+    resource: 'AppBundle\Controller\ErrorController'

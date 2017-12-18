@@ -1,0 +1,97 @@
+<div *ngIf="lesson" id="lesson" class="container-fluid" [@routerAnimation]>
+  <div class="jumbotron cafpa-jumbotron sm-jumbotron text-center">
+    <div class="col-md-3">
+      <img [src]="lesson.displayImage()" />
+    </div>
+    <div class="col-md-9 lesson-title">
+      <h2>{{ lesson.name }}</h2>
+      <h4>{{ lesson.category.name }}</h4>
+    </div>
+  </div>
+
+  <div id="lesson-details" class="col-md-12 row">
+    <div id="lesson-description" class="col-md-8">
+      <p [innerHtml]="lesson.description"></p>
+    </div>
+    <div id="lesson-teachers"  class="col-md-4">
+      <h5>Enseignants</h5>
+      <ul>
+        <li *ngFor="let teacher of teachers">{{ teacher.name() }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Associated assignment in progress -->
+  <div id="lesson-evaluations" class="col-lg-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Devoir à rendre</h3>
+      </div>
+      <div class="panel-body">
+        <div *ngIf="!assignments || (!(assignments.individual_assignments.length > 0) && !(assignments.group_assignments.length > 0))" class="col-sm-12 alert alert-warning">
+          Vous n'avez pas de devoir à rendre
+        </div>
+        <div *ngIf="assignments" class="row">
+          <div class="col-sm-12">
+            <label *ngIf="assignments.individual_assignments.length > 0">Devoirs individuels</label>
+            <div *ngFor="let individual_assignment of assignments.individual_assignments; let last = last" class="col-sm-12">
+              <app-assignment-summary [assignment]="individual_assignment"></app-assignment-summary>
+              <div *ngIf="!last" class="col-sm-12">
+                <hr>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="assignments.individual_assignments.length > 0 && assignments.group_assignments.length > 0" class="col-sm-12">
+            <hr>
+          </div>
+          <div class="col-sm-12">
+            <label *ngIf="assignments.group_assignments.length > 0">Devoirs de groupe</label>
+            <div *ngFor="let group_assignment of assignments.group_assignments; let last = last" class="col-sm-12">
+              <app-assignment-summary [assignment]="group_assignment"></app-assignment-summary>
+              <div *ngIf="!last" class="col-sm-12">
+                <hr>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Associated corrections in progress -->
+  <div class="col-lg-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Corrections à faire</h3>
+      </div>
+      <div class="panel-body">
+        <div *ngIf="!corrections || !(corrections.individual_corrections.length > 0) && !(corrections.group_corrections.length > 0)" class="col-sm-12 alert alert-warning">
+          Vous n'avez pas de correction à effectuer
+        </div>
+        <div *ngIf="corrections" class="row">
+          <div class="col-sm-12">
+            <label *ngIf="corrections.individual_corrections.length > 0">Corrections individuelles</label>
+            <div *ngFor="let individual_correction of corrections.individual_corrections; let last = last" class="col-sm-12">
+              <app-assignment-correction-summary [correction]="individual_correction"></app-assignment-correction-summary>
+              <div *ngIf="!last" class="col-sm-12">
+                <hr>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="corrections.individual_corrections.length > 0 && corrections.group_corrections.length > 0" class="col-sm-12">
+            <hr>
+          </div>
+          <div class="col-sm-12">
+            <label *ngIf="corrections.group_corrections.length > 0">Corrections de groupe</label>
+            <div *ngFor="let group_correction of corrections.group_corrections; let last = last" class="col-sm-12">
+              <app-assignment-correction-summary [correction]="group_correction"></app-assignment-correction-summary>
+              <div *ngIf="!last" class="col-sm-12">
+                <hr>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

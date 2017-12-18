@@ -1,0 +1,61 @@
+//IMPORT
+@import '_var.scss';
+
+
+#router-outlet{
+  margin-top: $navbarHeight;
+  margin-left: $menubarWidth;
+  margin-bottom: 25px;
+
+  #alert{
+    position: fixed;
+    top: $navbarHeight;
+    left: $menubarWidth + 15px;
+    right: 15px;
+    padding: 20px;
+    color: white;
+    margin-bottom: 15px;
+    text-align: center;
+    background-color: rgba(170, 99, 78, 0.5);
+    box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0.7);
+    z-index: 150;
+
+    &.success{
+      color: #000;
+      background-color: rgba(7, 191, 11, 0.7);
+    }
+    &.error{
+      background-color: rgba(255, 0, 0, 0.7);
+    }
+    &.warning{
+      color: #000;
+      background-color: rgba(191, 93, 16, 0.81);
+    }
+    &.info{
+      color: #000;
+      background-color: rgba(19, 0, 205, 0.79);
+    }
+  }
+}
+
+#menubar-footer{
+  position: absolute;
+  bottom: 0;
+  color: #555;
+  font-size: 11px;
+  width: 100%;
+  padding: 20px 0 10px 0;
+
+  div{
+    text-align: center;
+  }
+}
+
+p {
+  width:200px;
+  background:lightgray;
+  margin: 100px auto;
+  text-align:center;
+  padding:20px;
+  font-size:1.5em;
+}

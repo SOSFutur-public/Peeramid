@@ -1,0 +1,382 @@
+<div *ngIf="view_attributions || view_criteria_form" id="black"></div>
+
+<div *ngIf="evaluation" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-sm-12">
+
+    <h1 class="page-header">
+      <fa *ngIf="!evaluation.active_correction" name="file-text-o"></fa>
+      <fa *ngIf="(evaluation.active_correction && evaluation.date_start_correction > currentDate)" name="clock-o"></fa>
+      <fa *ngIf="(evaluation.active_assignment && evaluation.active_correction && evaluation.date_start_correction < currentDate && evaluation.date_end_correction > currentDate)" name="spinner"></fa>
+      <fa *ngIf="(evaluation.active_correction && evaluation.date_end_correction < currentDate)" name="check"></fa>
+      <fa *ngIf="0" name="archive"></fa>
+      Correction de {{ evaluation.name }}
+      <button *ngIf="evaluation.id" type="button" class="btn btn-primary btn-info pull-right" [routerLink]="['/teacher/evaluation', evaluation.id, 'edit']">
+        <fa name="arrow-left"></fa> Devoir
+      </button>
+      <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+        <fa name="times"></fa> Annuler
+      </button>
+    </h1>
+
+    <pre *ngIf="0 && environment.debug_log">Value: {{ evaluation | json }}</pre>
+
+      <form *ngIf="correctionForm" class="validated-form" [formGroup]="correctionForm" (ngSubmit)="saveCorrection()" novalidate autocomplete="off">
+        <div class="row">
+
+          <!-- Error -->
+          <div *ngIf="invalidForm" class="col-lg-12">
+            <div class="alert alert-danger">
+              Votre formulaire est invalide. Merci de le corriger avant de valider.
+            </div>
+          </div>
+
+          <accordion class="col-lg-12">
+
+            <!-- Evaluation definition -->
+            <accordion-group [isOpen]="true" #definition>
+              <div accordion-heading>
+                Devoir
+                <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': definition?.isOpen, 'glyphicon-chevron-right': !definition?.isOpen}"></i>
+              </div>
+              <div class="form-horizontal">
+                <div class="form-group">
+                  <div>
+                    <label class="col-sm-3 control-label">Cours correspondant</label>
+                    <div class="col-sm-9">
+                      <p class="form-control-static">{{ evaluation.lesson.name }}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="col-sm-3 control-label">Sujet</label>
+                    <div class="col-sm-9">
+                      <p class="form-control-static" [innerHtml]="evaluation.subject"></p>
+                      <div class="input-group table-files">
+                        <ul>
+                          <li *ngFor="let item of evaluation.subject_files">
+                            <a target="_blank" href="{{ environment.upload_url + 'evaluations/' + evaluation.id + '/subject_files/' + item.file_name }}">{{ item.file_name }}</a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </accordion-group>
+
+            <!-- Correction instructions -->
+            <accordion-group [isOpen]="true" #instructions formGroupName="instructions">
+              <div accordion-heading>
+                Consignes de correction
+                <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': instructions?.isOpen, 'glyphicon-chevron-right': !instructions?.isOpen}"></i>
+              </div>
+              <div class="form-horizontal">
+
+                <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['correctionInstructions'].length > 0) || (backChecks && backChecks['correctionInstructions'].length > 0 && correctionInstructionsControl.pristine), 'has-success': activateChecks && !(activateChecks['correctionInstructions'].length > 0)}">
+                  <label class="col-sm-3 control-label">Consignes</label>
+                  <div class="col-sm-9">
+                    <textarea class="form-control" formControlName="correctionInstructions" id="wysiwyg-correctionInstructions" value="{{ evaluation.correction_instructions }}"></textarea>
+                    <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[correctionInstructionsControl]" [frontCheck]="activateChecks['correctionInstructions']" [backCheck]="backChecks['correctionInstructions']"></app-core-form-errors>
+                  </div>
+                </div>
+
+                <fieldset formGroupName="datesCorrection">
+
+                  <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['dateStartCorrection'].length > 0) || (backChecks && backChecks['dateStartCorrection'].length > 0 && dateStartCorrectionControl.pristine), 'has-success': activateChecks && !(activateChecks['dateStartCorrection'].length > 0)}">
+                    <label class="col-sm-3 control-label label-datetimepicker">
+                      Rendu des corrections à partir du
+                      <span class="glyphicon glyphicon-info-sign" popoverTitle="Période de rendu des corrections"  popover="Date à partir de laquelle la correction sera accessible et visible pour les étudiants. La publication a lieu à partir du moment où la correction a été validé pour publication et que la date de publication est atteinte." container="body" triggers="mouseenter:mouseleave"></span>
+                      <p class="info">Date de fin de rendu des devoirs : {{ evaluation.date_end_assignment | date:'dd/MM/yyyy à HH:mm' }}</p>
+                    </label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control datepicker" bsDatepicker
+                             [minDate]="minDate"
+                             [bsConfig]="bsConfig"
+                             #dp="bsDatepicker"
+                             formControlName="dateStartCorrection"
+                             placeholder="Date de début de la correction">
+                      <timepicker [readonlyInput]="evaluation.active_correction" [ngClass]="{'disabled': evaluation.active_correction}" class="timepicker" formControlName="timeStartCorrection"></timepicker>
+                      <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[dateStartCorrectionControl]" [frontCheck]="activateChecks['dateStartCorrection']" [backCheck]="backChecks['dateStartCorrection']"></app-core-form-errors>
+                    </div>
+                  </div>
+
+                  <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['dateEndCorrection'].length > 0) || (backChecks && backChecks['dateEndCorrection'].length > 0 && dateEndCorrectionControl.pristine), 'has-success': activateChecks && !(activateChecks['dateEndCorrection'].length > 0)}">
+                    <label class="col-sm-3 control-label label-datetimepicker">Rendu des corrections jusqu’au</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control datepicker" bsDatepicker
+                             [minDate]="minDate"
+                             [bsConfig]="bsConfig"
+                             #dp="bsDatepicker"
+                             formControlName="dateEndCorrection"
+                             placeholder="Date de fin de la correction">
+                      <timepicker [readonlyInput]="evaluation.active_correction" [ngClass]="{'disabled': evaluation.active_correction}" class="timepicker" formControlName="timeEndCorrection"></timepicker>
+                      <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[dateEndCorrectionControl]" [frontCheck]="activateChecks['dateEndCorrection']" [backCheck]="backChecks['dateEndCorrection']"></app-core-form-errors>
+                    </div>
+                  </div>
+
+                </fieldset>
+
+              </div>
+            </accordion-group>
+
+            <!-- Correction mode -->
+            <accordion-group [isOpen]="true" #correctionMode formGroupName="correctionMode">
+              <div accordion-heading>
+                Paramètres de correction
+                <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': correctionMode?.isOpen, 'glyphicon-chevron-right': !correctionMode?.isOpen}"></i>
+              </div>
+              <div class="form-horizontal">
+
+                <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['individualCorrection'].length > 0) || (backChecks && backChecks['individualCorrection'].length > 0 && individualCorrectionControl.pristine), 'has-success': activateChecks && !(activateChecks['individualCorrection'].length > 0)}">
+                  <label class="col-sm-3 control-label">Mode de correction</label>
+                  <div class="col-sm-5 radio">
+                    <label>
+                      <input type="radio" [value]="true" formControlName="individualCorrection">
+                      Correction individuelle
+                    </label>
+                    <label>
+                      <input type="radio" [value]="false" formControlName="individualCorrection">
+                      Correction de groupe
+                    </label>
+                    <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[individualCorrectionControl]" [frontCheck]="activateChecks['individualCorrection']" [backCheck]="backChecks['individualCorrection']"></app-core-form-errors>
+                  </div>
+                </div>
+
+                <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['anonymity'].length > 0) || (backChecks && backChecks['anonymity'].length > 0 && anonymityControl.pristine), 'has-success': activateChecks && !(activateChecks['anonymity'].length > 0)}">
+                  <label class="col-sm-3 control-label">Anonymat du devoir</label>
+                  <div class="col-sm-5 radio">
+                    <label>
+                      <input type="radio" [value]="true" formControlName="anonymity">
+                      Devoir anonyme
+                    </label>
+                    <label>
+                      <input type="radio" [value]="false" formControlName="anonymity">
+                      Devoir signé
+                    </label>
+                    <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[anonymityControl]" [frontCheck]="activateChecks['anonymity']" [backCheck]="backChecks['anonymity']"></app-core-form-errors>
+                  </div>
+                </div>
+
+                <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['numberCorrectionsUsers'].length > 0) || (backChecks && backChecks['numberCorrections'].length > 0 && numberCorrectionsControl.pristine) || (activateChecks && activateChecks['numberCorrectionsGroups'].length > 0) || (backChecks && backChecks['numberCorrections'].length > 0 && numberCorrectionsControl.pristine), 'has-success': activateChecks && !(activateChecks['numberCorrectionsUsers'].length > 0) && !(activateChecks['numberCorrectionsGroups'].length > 0)}">
+                  <label class="col-sm-3 control-label">Nombre de corrections à effectuer par {{ individualCorrectionControl.value ? 'étudiant' : 'groupe' }}</label>
+                  <div class="col-sm-3">
+                    <div *ngIf="evaluation.individual_assignment ? !(evaluation.users.length > 1) : !(evaluation.groups.length > 1)">
+                      <p *ngIf="evaluation.individual_assignment ? evaluation.users.length === 1 : evaluation.groups.length === 1" class="none">
+                        Il est nécessaire d'affecter plus d'un {{ evaluation.individual_assignment ? 'étudiant' : 'groupe' }} à cette évaluation...
+                      </p>
+                      <p *ngIf="evaluation.individual_assignment ? !(evaluation.users.length > 0) : !(evaluation.groups.length > 0)" class="none">
+                        Aucun {{ evaluation.individual_assignment ? 'étudiant' : 'groupe' }} n'est affecté à cette évaluation...
+                      </p>
+                    </div>
+                    <input *ngIf="evaluation.individual_assignment ? evaluation.users.length > 1 : evaluation.groups.length > 1" type="number" min="1" [max]="evaluation.individual_assignment ? evaluation.users.length - 1 : evaluation.groups.length - 1" step="1" class="form-control" formControlName="numberCorrections" placeholder="Nombre de corrections">
+                    <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[numberCorrectionsControl]" [frontCheck]="activateChecks['numberCorrectionsUsers']" [backCheck]="backChecks['numberCorrections']"></app-core-form-errors>
+                    <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[numberCorrectionsControl]" [frontCheck]="activateChecks['numberCorrectionsGroups']" [backCheck]=""></app-core-form-errors>
+                  </div>
+
+                  <!-- Reset attributions button popover's template -->
+                  <ng-template #resetAttributionsPopover>
+                    <p *ngFor="let check of formService.checksToArray(repartitionChecks, repartitionControls)">
+                      <span *ngIf="check.substring(0, 1) !== '_'"><strong>{{ check }}</strong> invalide.</span>
+                      <span *ngIf="check.substring(0, 1) === '_'"><strong>{{ check | slice:1 }}</strong></span>
+                    </p>
+                  </ng-template>
+
+                  <div class="col-sm-6">
+                    <div *ngIf="!(attributions.length > 0)" popoverTitle="Impossible de voir la répartition" popover="Aucune attribution n'a été faite" container="body" triggers="mouseenter:mouseleave" class="pull-left">
+                      <button type="button" class="btn btn-info btn-sm" disabled><fa name="eye"></fa> Voir la répartition</button>
+                    </div>
+                    <button *ngIf="attributions.length > 0" type="button" class="btn btn-info btn-sm pull-left" (click)="displayAttributions()"><fa name="eye"></fa> Voir la répartition</button>
+                    <div *ngIf="!formService.checkEmptyChecks(repartitionChecks)" popoverTitle="Impossible de faire la répartition" [popover]="resetAttributionsPopover" container="body" triggers="mouseenter:mouseleave" class="pull-left">
+                      <button type="button" class="btn btn-warning btn-sm" disabled><fa name="refresh"></fa> {{ attributions.length > 0 ? 'Ref' : 'F' }}aire la répartition</button>
+                    </div>
+                    <button *ngIf="formService.checkEmptyChecks(repartitionChecks)" type="button" class="btn btn-warning btn-sm pull-left" (click)="resetCorrectionsAttributions()"><fa name="refresh"></fa> {{ attributions.length > 0 ? 'Ref' : 'F' }}aire la répartition</button>
+                  </div>
+                </div>
+
+                <div *ngIf="view_attributions" class="view-side-form">
+                  <app-evaluation-correction-attributions [(getViewAttributions)]="view_attributions" [(attributions)]="attributions" [individualAssignment]="evaluation.individual_assignment" [individualCorrection]="evaluation.individual_correction"></app-evaluation-correction-attributions>
+                </div>
+
+              </div>
+            </accordion-group>
+
+            <!-- Opinion settings -->
+            <accordion-group [isOpen]="true" #opinion formGroupName="opinion">
+              <div accordion-heading>
+                Paramètres des opinions
+                <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': opinion?.isOpen, 'glyphicon-chevron-right': !opinion?.isOpen}"></i>
+              </div>
+              <div class="form-horizontal">
+                <fieldset formGroupName="datesOpinion">
+                  <div class="form-group" [ngClass]="{'has-error': (activateChecks && activateChecks['dateEndOpinion'].length > 0) || (backChecks && backChecks['dateEndOpinion'].length > 0 && dateEndOpinionControl.pristine), 'has-success': activateChecks && !(activateChecks['dateEndOpinion'].length > 0)}">
+                    <label class="col-sm-3 control-label label-datetimepicker">Date de fin des opinions</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control datepicker" bsDatepicker
+                             [minDate]="minDate"
+                             [bsConfig]="bsConfig"
+                             #dp="bsDatepicker"
+                             formControlName="dateEndOpinion"
+                             placeholder="Date de fin des opinions">
+                      <timepicker [readonlyInput]="evaluation.active_correction" [ngClass]="{'disabled': evaluation.active_correction}" class="timepicker" formControlName="timeEndOpinion"></timepicker>
+                      <app-core-form-errors *ngIf="activateChecks !== null && backChecks !== null" [controls]="[dateEndOpinionControl]" [frontCheck]="activateChecks['dateEndOpinion']" [backCheck]="backChecks['dateEndOpinion']"></app-core-form-errors>
+                    </div>
+                  </div>
+
+                </fieldset>
+              </div>
+            </accordion-group>
+
+            <!-- Correction sections -->
+            <accordion-group [isOpen]="true" #sectionsList>
+              <div accordion-heading>
+                Sections
+                <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': sectionsList?.isOpen, 'glyphicon-chevron-right': !sectionsList?.isOpen}"></i>
+              </div>
+              <div class="form-horizontal">
+                <div *ngIf="!evaluation.sections || !(evaluation.sections.length > 0)" class="form-group text-center">
+                  <i>Ce devoir ne possède pas de sections</i>
+                </div>
+
+                <!-- Sections List -->
+                <tabset [justified]="true" class="correction-sections">
+                  <tab *ngFor="let section of evaluation.sections" class="col-md-12">
+                    <ng-template tabHeading>
+                      <span class="fa-stack"><i class="fa fa-circle-thin fa-stack-1x"></i>{{section.order}}</span>{{section.title}}
+                    </ng-template>
+                    <div class="row section-row">
+                      <div class="col-sm-5 section-subject">
+                        <p class="form-control-static" [innerHtml]="section.subject"></p>
+                      </div>
+                      <div class="col-sm-7">
+                        <div class="table-responsive">
+                          <table *ngIf="section.criterias && section.criterias.length > 0" class="table table-striped">
+                            <thead [hidden]="section.criterias.length === 1 && criteriaOrderTmp">
+                            <tr>
+                              <th>Type</th>
+                              <th>Critère</th>
+                              <th></th>
+                              <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let criteria of section.criterias; let firstCriteria = first; let lastCriteria = last">
+                              <td *ngIf="criteria.order !== criteriaOrderTmp" class="col-sm-2">
+                                {{ criteria.criteria_type.type }}
+                              </td>
+                              <td *ngIf="criteria.criteria_type.id === 1 && criteria.order !== criteriaOrderTmp" class="col-sm-8" colspan="2">
+                                <p [innerHtml]="criteria.description"></p>
+                              </td>
+                              <td *ngIf="criteria.criteria_type.id !== 1 && criteria.order !== criteriaOrderTmp" class="col-sm-5">
+                                <p [innerHtml]="criteria.description"></p>
+                              </td>
+                              <td *ngIf="criteria.criteria_type.id === 2 && criteria.order !== criteriaOrderTmp" class="col-sm-3">
+                                <p *ngFor="let choice of criteria.criteria_choices">
+                                  - {{ choice.name }}<br>
+                                  <small>  Note: {{ choice.mark }}</small>
+                                </p>
+                              </td>
+                              <td *ngIf="criteria.criteria_type.id === 3 && criteria.order !== criteriaOrderTmp" class="col-sm-3">
+                                <p>
+                                  Note min: {{ criteria.mark_min }}<br>
+                                  Note max: {{ criteria.mark_max }}<br>
+                                  <small>Precision: {{ criteria.precision }}</small>
+                                </p>
+                              </td>
+                              <td *ngIf="criteria.order !== criteriaOrderTmp" class="col-sm-2">
+                                <button type="button" class="btn btn-default btn-xs" (click)="moveCriteria(section, criteria, 1)" [disabled]="criteriaOrderTmp || lastCriteria || (section.criterias.length === 2 && criteriaOrderTmp || evaluation.active_correction)">
+                                  <span class="fa fa-arrow-down fa-lg"></span>
+                                </button>
+                                <button type="button" class="btn btn-default btn-xs" (click)="moveCriteria(section, criteria, -1)" [disabled]="criteriaOrderTmp || firstCriteria || (section.criterias.length === 2 && criteriaOrderTmp || evaluation.active_correction)">
+                                  <span class="fa fa-arrow-up fa-lg"></span>
+                                </button>
+                                <button type="button" class="btn btn-primary btn-xs" [disabled]="criteriaOrderTmp || evaluation.active_correction" (click)="displayCriteriaForm(section, criteria)">
+                                  <span class="fa fa-pencil-square-o fa-lg"></span>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-xs" [disabled]="criteriaOrderTmp || evaluation.active_correction" (click)="deleteCriteria(section, criteria)">
+                                  <span class="fa fa-remove fa-lg"></span>
+                                </button>
+                              </td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div *ngIf="!criteriaOrderTmp" class="text-center">
+                          <button [disabled]="evaluation.active_correction" type="button" class="btn btn-primary" (click)="displayCriteriaForm(section)">
+                            <fa name="plus"></fa> Ajouter un critère
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </tab>
+                </tabset>
+                <app-core-form-errors class="text-center" *ngIf="activateChecks !== null && backChecks !== null" [controls]="[]" [frontCheck]="activateChecks['criterias']" [backCheck]="backChecks['criterias']" [always]="true"></app-core-form-errors>
+                <app-core-form-errors class="text-center" *ngIf="activateChecks !== null && backChecks !== null" [controls]="[]" [frontCheck]="" [backCheck]="backChecks['sections']" [always]="true"></app-core-form-errors>
+              </div>
+            </accordion-group>
+
+          </accordion>
+
+        </div>
+
+        <!-- Activation button popover's template -->
+        <ng-template #activationPopover>
+          <p *ngFor="let check of formService.checksToArray(activateChecks, activateControls)">
+            <span *ngIf="check.substring(0, 1) !== '_'"><strong>{{ check }}</strong> invalide.</span>
+            <span *ngIf="check.substring(0, 1) === '_'"><strong>{{ check | slice:1 }}</strong></span>
+          </p>
+        </ng-template>
+
+        <!-- Save button popover's template -->
+        <ng-template #savePopover>
+          <!--p *ngFor="let message of getSaveButtonMessages()">{{ message }}</p-->
+          <p *ngFor="let check of formService.checksToArray(saveChecks, saveControls)">
+            <span *ngIf="check.substring(0, 1) !== '_'"><strong>{{ check }}</strong> invalide.</span>
+            <span *ngIf="check.substring(0, 1) === '_'"><strong>{{ check | slice:1 }}</strong></span>
+          </p>
+        </ng-template>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div *ngIf="evaluation.id && !evaluation.archived && (evaluation.active_correction || !formService.checkEmptyChecks(saveChecks))" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" container="body" triggers="mouseenter:mouseleave">
+              <button type="button" class="btn btn-primary btn-success" disabled>
+                <fa name="floppy-o"></fa> Enregistrer les modifications
+              </button>
+            </div>
+            <button *ngIf="evaluation.id && !evaluation.archived && !evaluation.active_correction && formService.checkEmptyChecks(saveChecks)" type="submit" class="btn btn-primary btn-success pull-right" [disabled]="evaluation.active_correction || correctionForm.invalid">
+              <fa name="floppy-o"></fa> Enregistrer les modifications
+            </button>
+            <div *ngIf="evaluation.id && !evaluation.archived && !formService.checkEmptyChecks(activateChecks)" class="pull-right" popoverTitle="Impossible d'activer" [popover]="activationPopover" container="body" triggers="mouseenter:mouseleave">
+              <button type="button" class="btn btn-primary btn-success" disabled>
+                <fa name="check"></fa> Activer la correction
+              </button>
+            </div>
+            <button *ngIf="evaluation.id && !evaluation.archived && formService.checkEmptyChecks(activateChecks)" type="button" class="btn btn-primary pull-right" (click)="toggleCorrection()" [ngClass]="{'btn-success' : !evaluation.active_correction, 'btn-danger' : evaluation.active_correction}">
+              <fa *ngIf="evaluation.active_correction" name="times"></fa>
+              <fa *ngIf="!evaluation.active_correction" name="check"></fa>
+              {{ evaluation.active_correction ? 'Désactiver la correction' : 'Activer la correction' }}
+            </button>
+            <button *ngIf="evaluation.id" type="button" class="btn btn-primary btn-info pull-right" [routerLink]="['/teacher/evaluation', evaluation.id, 'edit']"><fa name="arrow-left"></fa> Devoir</button>
+            <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()"><fa name="times"></fa> Annuler</button>
+          </div>
+        </div>
+
+        <div *ngIf="environment.debug_log">
+          <pre>Evaluation: {{ evaluation | json }}</pre>
+          <pre>Value: {{ correctionForm.value | json }}</pre>
+          <pre>Validation status: {{ correctionForm.status }}</pre>
+        </div>
+
+      </form>
+
+  </div>
+
+</div>
+
+<div *ngIf="view_criteria_form" class="view-side-form">
+  <app-evaluation-correction-criteria-form [evaluation]="evaluation" [section]="section_tmp" [criteria]="criteria_tmp" [(getViewCriteriaForm)]="view_criteria_form" [(evaluation)]="evaluation" [(criteriasControl)]="criteriasControl"></app-evaluation-correction-criteria-form>
+</div>
+
+
+
+

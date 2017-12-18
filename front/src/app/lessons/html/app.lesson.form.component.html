@@ -1,0 +1,155 @@
+<form *ngIf="lessonForm" class="form-horizontal validated-form" [formGroup]="lessonForm" (ngSubmit)="saveLesson()" novalidate autocomplete="off">
+
+  <!-- Error -->
+  <div *ngIf="!studentsEditOnly && invalidForm">
+    <div class="col-lg-12 alert alert-danger">
+      Votre formulaire est invalide. Merci de le corriger avant de valider.
+    </div>
+  </div>
+
+  <!-- Name input -->
+  <div *ngIf="!studentsEditOnly" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['name'].length > 0) || (backChecks && backChecks['name'].length > 0 && nameControl.pristine), 'has-success': saveChecks && !(saveChecks['name'].length > 0)}">
+        <label class="col-sm-2 control-label">Intitulé</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" formControlName="name" placeholder="Intitulé"/>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[nameControl]" [frontCheck]="saveChecks['name']" [backCheck]="backChecks['name']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drop down menu for category selection -->
+  <div *ngIf="!studentsEditOnly" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['category'].length > 0) || (backChecks && backChecks['category'].length > 0 && categoryControl.pristine), 'has-success': saveChecks && !(saveChecks['category'].length > 0)}">
+        <label class="col-sm-2 control-label">Catégorie</label>
+        <div class="col-sm-10">
+          <ss-multiselect-dropdown *ngIf="categories.length > 0" [options]="categories" [texts]="categoriesSelectTexts" [settings]="singleSelectSettings" formControlName="category"></ss-multiselect-dropdown>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[categoriesControl]" [frontCheck]="saveChecks['category']" [backCheck]="backChecks['category']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Description input -->
+  <div *ngIf="!studentsEditOnly" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['description'].length > 0) || (backChecks && backChecks['description'].length > 0 && descriptionControl.pristine), 'has-success': saveChecks && !(saveChecks['description'].length > 0)}">
+        <label class="col-sm-2 control-label">Description</label>
+        <div class="col-sm-10">
+          <textarea class="form-control" formControlName="description" id="wysiwyg-description" value="{{lesson.description}}"></textarea>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[descriptionControl]" [frontCheck]="saveChecks['description']" [backCheck]="backChecks['description']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drop down menu for student selection -->
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['students'].length > 0) || (backChecks && backChecks['students'].length > 0 && studentsControl.pristine), 'has-success': saveChecks && !(saveChecks['students'].length > 0)}">
+        <label class="col-sm-2 control-label">Étudiants</label>
+        <div class="col-sm-10">
+          <ss-multiselect-dropdown *ngIf="students.length > 0" [options]="students" [texts]="studentsSelectTexts" [settings]="multipleSelectSettings" formControlName="students"></ss-multiselect-dropdown>
+          <p *ngIf="!(students.length > 0)" class="none">
+            Aucun étudiant n'est disponible...
+          </p>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[studentsControl]" [frontCheck]="saveChecks['students']" [backCheck]="backChecks['students']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drop down menu for teacher selection -->
+  <div *ngIf="!studentsEditOnly" class="row">
+    <div class="col-lg-12">
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['teachers'].length > 0) || (backChecks && backChecks['teachers'].length > 0 && teachersControl.pristine), 'has-success': saveChecks && !(saveChecks['teachers'].length > 0)}">
+        <label class="col-sm-2 control-label">Professeurs</label>
+        <div class="col-sm-10">
+          <ss-multiselect-dropdown *ngIf="teachers.length > 0" [options]="teachers" [texts]="teachersSelectTexts" [settings]="multipleSelectSettings" formControlName="teachers"></ss-multiselect-dropdown>
+          <p *ngIf="!(teachers.length > 0)" class="none">
+            Aucun enseignant n'est disponible...
+          </p>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[teachersControl]" [frontCheck]="saveChecks['teachers']" [backCheck]="backChecks['teachers']"></app-core-form-errors>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image upload -->
+  <div *ngIf="!studentsEditOnly" class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label class="col-sm-2 control-label">
+          Image
+          <p class="info">Types de fichiers autorisés: {{ filesTypesSettingText }}</p>
+          <p class="info">Taille maximale: {{ filesMaxSizeSetting }}Mo</p>
+        </label>
+        <div class="col-md-3">
+          <input #uploaderElem type="file" id="files" class="hidden" ng2FileSelect [uploader]="uploader" [disabled]="lesson.image || uploader.queue.length > 0"/>
+          <button *ngIf="lesson.image || uploader.queue.length > 0" type="button" class="btn btn-primary btn-info btn-files" disabled><fa name="upload"></fa> Sélectionner une image</button>
+          <label *ngIf="!(lesson.image || uploader.queue.length > 0)" class="btn btn-primary btn-info btn-files" for="files"><fa name="upload"></fa> Sélectionner une image</label>
+        </div>
+        <div class="col-md-7">
+          <div class="input-group table-files">
+            <table class="table">
+              <tbody>
+              <tr *ngIf="lesson.image">
+                <td><strong>{{ lesson.image }}</strong></td>
+                <td class="pull-right">
+                  <button type="button" class="btn btn-danger btn-xs" (click)="removeFile()">
+                    <span class="glyphicon glyphicon-trash"></span> Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngFor="let item of uploader.queue">
+                <td>
+                  <p><strong>{{ item?.file?.name }}</strong></p>
+                  <div *ngIf="saveChecks !== null && saveChecks['imageFile'].length > 0 && (importControl.dirty || importControl.touched)">
+                    <div class="errors">
+                      <p class="label label-danger">
+                        {{ saveChecks['imageFile'] }}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td class="pull-right">
+                  <button type="button" class="btn btn-danger btn-xs" (click)="removeQueuedFile(item)">
+                    <span class="glyphicon glyphicon-trash"></span> Supprimer
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Save button popover's template -->
+  <ng-template #savePopover>
+    <p *ngFor="let check of formService.checksToArray(saveChecks, saveControls)">
+      <strong>{{ check }}</strong> invalide.
+    </p>
+  </ng-template>
+
+  <!-- Save button -->
+  <div class="row">
+    <div class="col-md-12">
+      <div *ngIf="!formService.checkEmptyChecks(saveChecks)" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" container="body" triggers="mouseenter:mouseleave">
+        <button type="button" disabled class="btn btn-primary btn-success"><fa name="floppy-o"></fa> {{ lesson.id ? 'Enregistrer les modifications' : 'Créer ce cours' }}</button>
+      </div>
+      <button *ngIf="formService.checkEmptyChecks(saveChecks)" type="submit" class="btn btn-primary btn-success pull-right"><fa name="floppy-o"></fa> {{ lesson.id ? 'Enregistrer les modifications' : 'Créer ce cours' }}</button>
+      <button type="button" class="btn btn-danger pull-right" (click)="cancel()"><fa name="times"></fa> Annuler</button>
+    </div>
+  </div>
+
+  <pre *ngIf="environment.debug_log">Value: {{ lessonForm.value | json }}</pre>
+  <pre *ngIf="environment.debug_log">Validation status: {{ lessonForm.status }}</pre>
+
+</form>

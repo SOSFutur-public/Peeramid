@@ -1,0 +1,125 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: services.yml }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en    
+ 
+framework:
+    #esi:             ~
+    translator:      { fallbacks: [fr] }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }    
+    templating:
+        engines: ['twig']
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session:
+        # http://symfony.com/doc/current/reference/configuration/framework.html#handler-id
+        handler_id:  session.handler.native_file
+        save_path:   "%kernel.root_dir%/../var/sessions/%kernel.environment%"
+    fragments:       ~
+    http_method_override: true
+    assets: ~
+    serializer:
+        enabled: true
+        enable_annotations: true
+       # cache: serializer.mapping.cache.apc
+        name_converter: 'serializer.name_converter.camel_case_to_snake_case'
+
+sensio_framework_extra:
+    security: { annotations: false }
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:             "%database_driver%"
+        server_version:     "%database_version%"
+        host:               "%database_host%"
+        port:               "%database_port%"
+        dbname:             "%database_name%"
+        user:               "%database_user%"
+        password:           "%database_password%"
+        charset:            UTF8
+        # if using pdo_sqlite as your database driver:
+        #   1. add the path in parameters.yml
+        #     e.g. database_path: "%kernel.root_dir%/data/data.db3"
+        #   2. Uncomment database_path in parameters.yml.dist
+        #   3. Uncomment next line:
+        #     path:     "%database_path%"
+        mapping_types:
+            enum: string
+
+    orm:
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+        auto_generate_proxy_classes: "%kernel.debug%"
+        proxy_namespace: Proxies
+        proxy_dir: '%kernel.cache_dir%/doctrine/orm/Proxies'
+        default_entity_manager: default
+        metadata_cache_driver: array
+        query_cache_driver: array
+        result_cache_driver: array
+
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: "%mailer_transport%"
+    host:      "%mailer_host%"
+    username:  "%mailer_user%"
+    password:  "%mailer_password%"
+    encryption: ssl
+    spool:
+        type: file
+        path: '%kernel.root_dir%/spool'
+
+# FOS REST Bundle
+fos_rest:
+    disable_csrf_role: null
+    access_denied_listener:
+            enabled: false
+            service: null
+            formats: null
+            unauthorized_challenge: null
+    param_fetcher_listener:
+        enabled: false
+    routing_loader:
+        include_format: false
+    view:
+        view_response_listener: true
+    format_listener:
+        rules:
+            - { path: '^/', priorities: ['json'], fallback_format: 'json' }
+    exception:
+        enabled: true
+        messages:
+            'Symfony\Component\HttpKernel\Exception\HttpException': true
+            'Symfony\Component\Security\Core\Exception\BadCredentialsException': true
+        codes:
+            'Symfony\Component\Security\Core\Exception\BadCredentialsException': 401
+
+
+nelmio_cors:
+    defaults:
+        allow_credentials: true
+        allow_origin:  "%cors_allow_origin%"
+        allow_methods: ["POST", "PUT", "GET", "DELETE", "PATCH", "OPTIONS"]
+        allow_headers: ["Origin", "Content-Type", "Authorization"]
+        max_age:       3600
+    paths:
+        '^/': ~
+
+lexik_jwt_authentication:
+    private_key_path: "%kernel.root_dir%/config/jwt/private.pem"
+    public_key_path:  "%kernel.root_dir%/config/jwt/public.pem"
+    pass_phrase:      "%jwt_key_pass_phrase%"
+    token_ttl: 7200

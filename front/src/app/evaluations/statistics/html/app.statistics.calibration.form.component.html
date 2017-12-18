@@ -1,0 +1,40 @@
+<div *ngIf="evaluation" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-sm-12">
+    <h1 class="page-header">
+      Calibrage du calcul de fiabilité des évaluations
+      <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+        <fa name="arrow-left"></fa> Retour aux statistiques
+      </button>
+    </h1>
+  </div>
+
+  <div class="col-sm-12">
+    <form *ngIf="calibrageForm" [formGroup]="calibrageForm" class="form-horizontal">
+      <div class="form-group">
+        <label class="col-sm-3 control-label">Sélectionner un critère</label>
+        <div class="col-sm-5">
+          <ss-multiselect-dropdown *ngIf="criteriasSelectOptions.length > 0" [options]="criteriasSelectOptions" [texts]="criteriasSelectTexts" [settings]="singleSelectSettings" formControlName="criterias"></ss-multiselect-dropdown>
+        </div>
+      </div>
+      <div *ngIf="criteriasControl.value.length > 0" class="form-group">
+        <div class="col-md-12">
+          <div id="criteriaChart"></div>
+        </div>
+        <div class="col-md-12">
+          <nouislider *ngIf="criteria" [min]="maxDiff * -1" [max]="maxDiff" [step]="0.01" [formControl]="slideControl" [tooltips]="[true, true, true, true]" style="margin-top: 4em;" (update)="updateTrapezium()"></nouislider>
+        </div>
+      </div>
+
+      <hr>
+
+      <div *ngIf="criteriasControl.value.length > 0" class="row">
+        <div class="col-sm-12">
+          <button type="button" class="btn btn-primary btn-success pull-right" (click)="saveReliability()"><fa name="floppy-o"></fa> Enregistrer les modifications</button>
+          <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()"><fa name="arrow-left"></fa> Retour aux statistiques</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+</div>

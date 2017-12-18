@@ -1,0 +1,16 @@
+//IMPORT
+@import '_var.scss';
+
+
+#login{
+  margin-top: $navbarHeight + 100px;
+  margin-left: -$menubarWidth;
+
+  button.pull-right{
+
+  }
+
+  a{
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,108 @@
+<div id="correction-criteria-form" class="container-fluid sidebar-slider" [@slideInOutAnimation]>
+
+  <button type="button" class="close" (click)="cancel()"><fa name="close"></fa></button>
+
+  <div class="col-md-12">
+    <h1 class="page-header">{{ criteria.id != null ? 'Modification' : 'Nouveau' }} critère</h1>
+  </div>
+
+  <div class="col-md-12">
+
+    <form *ngIf="criteriaForm" [formGroup]="criteriaForm" (ngSubmit)="save()" class="form-horizontal" novalidate autocomplete="off">
+
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['criteriaType'].length > 0) || (backChecks && backChecks['criteriaType'].length > 0 && criteriaTypeControl.pristine), 'has-success': saveChecks && !(saveChecks['criteriaType'].length > 0)}">
+        <label class="col-sm-3 control-label">Type de critère</label>
+        <div class="col-sm-9 radio">
+          <label *ngFor="let criteriaType of criteriaTypes">
+            <input type="radio" [value]="criteriaType.id" formControlName="type" (click)="toggleEditor()">
+            {{ criteriaType.type }}
+          </label>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[criteriaTypeControl]" [frontCheck]="saveChecks['criteriaType']" [backCheck]="backChecks['criteriaType']"></app-core-form-errors>
+        </div>
+      </div>
+
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['criteriaDescription'].length > 0) || (backChecks && backChecks['criteriaDescription'].length > 0 && criteriaDescriptionControl.pristine), 'has-success': saveChecks && !(saveChecks['criteriaDescription'].length > 0)}">
+        <div class="col-md-12">
+          <textarea class="form-control" formControlName="description" id="wysiwyg-criteriaDescription" value="{{ criteria.description }}"></textarea>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[criteriaDescriptionControl]" [frontCheck]="saveChecks['criteriaDescription']" [backCheck]="backChecks['criteriaDescription']"></app-core-form-errors>
+        </div>
+      </div>
+
+      <!-- Choice criteria -->
+      <div *ngIf="criteriaTypeControl.value == 2">
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['choices'].length > 0) || (backChecks && backChecks['criteriaChoices'].length > 0 && criteriaChoicesControl.pristine), 'has-success': saveChecks && !(saveChecks['choices'].length > 0)}">
+          <label class="col-sm-3 control-label">Choix</label>
+          <div class="col-sm-9">
+            <app-evaluation-correction-criteria-choice-form [criteria]="criteria" [criteriaChoicesControl]="criteriaChoicesControl"></app-evaluation-correction-criteria-choice-form>
+            <app-core-form-errors class="text-center" *ngIf="saveChecks !== null && backChecks !== null" [controls]="[criteriaChoicesControl]" [frontCheck]="saveChecks['choices']" [backCheck]="backChecks['criteriaChoices']" [always]="true"></app-core-form-errors>
+          </div>
+        </div>
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['criteriaWeight'].length > 0) || (backChecks && backChecks['criteriaWeight'].length > 0 && criteriaDescriptionControl.pristine), 'has-success': saveChecks && !(saveChecks['criteriaWeight'].length > 0)}">
+          <label class="col-sm-3 control-label">Poids de la note</label>
+          <div class="col-sm-2">
+            <input type="number" class="form-control" step="1" min="0" formControlName="weight" placeholder="Poids">
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[criteriaWeightControl]" [frontCheck]="saveChecks['criteriaWeight']" [backCheck]="backChecks['criteriaWeight']"></app-core-form-errors>
+          </div>
+        </div>
+      </div>
+
+      <!-- Judgment criteria -->
+      <div *ngIf="criteriaTypeControl.value == 3">
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['criteriaMarkMin'].length > 0) || (backChecks && backChecks['criteriaMarkMin'].length > 0 && criteriaMarkMinControl.pristine), 'has-success': saveChecks && !(saveChecks['criteriaMarkMin'].length > 0)}">
+          <label class="col-sm-3 control-label">Note min</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" step="1" [max]="criteriaMarkMaxControl.value" formControlName="markMin" placeholder="Note min">
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[criteriaMarkMinControl]" [frontCheck]="saveChecks['criteriaMarkMin']" [backCheck]="backChecks['criteriaMarkMin']"></app-core-form-errors>
+          </div>
+        </div>
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['criteriaMarkMax'].length > 0) || (backChecks && backChecks['criteriaMarkMax'].length > 0 && criteriaMarkMaxControl.pristine), 'has-success': saveChecks && !(saveChecks['criteriaMarkMax'].length > 0)}">
+          <label class="col-sm-3 control-label">Note max</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" step="1" [min]="criteriaMarkMinControl.value > 0 ? criteriaMarkMinControl.value : 0" formControlName="markMax" placeholder="Note max">
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[criteriaMarkMaxControl]" [frontCheck]="saveChecks['criteriaMarkMax']" [backCheck]="backChecks['criteriaMarkMax']"></app-core-form-errors>
+          </div>
+        </div>
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['criteriaPrecision'].length > 0) || (backChecks && backChecks['criteriaPrecision'].length > 0 && criteriaPrecisionControl.pristine), 'has-success': saveChecks && !(saveChecks['criteriaPrecision'].length > 0)}">
+          <label class="col-sm-3 control-label">Precision</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" formControlName="precision" placeholder="Precision">
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[criteriaPrecisionControl]" [frontCheck]="saveChecks['criteriaPrecision']" [backCheck]="backChecks['criteriaPrecision']"></app-core-form-errors>
+          </div>
+        </div>
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['criteriaWeight'].length > 0) || (backChecks && backChecks['criteriaWeight'].length > 0 && criteriaWeightControl.pristine), 'has-success': saveChecks && !(saveChecks['criteriaWeight'].length > 0)}">
+          <label class="col-sm-3 control-label">Poids de la note</label>
+          <div class="col-sm-2">
+            <input type="number" class="form-control" step="1" min="0" formControlName="weight" placeholder="Poids">
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[criteriaWeightControl]" [frontCheck]="saveChecks['criteriaWeight']" [backCheck]="backChecks['criteriaWeight']"></app-core-form-errors>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save button popover's template -->
+      <ng-template #savePopover>
+        <p *ngFor="let check of formService.checksToArray(saveChecks, saveControls)">
+          <strong>{{ check }}</strong> invalide.
+        </p>
+      </ng-template>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div *ngIf="!formService.checkEmptyChecks(saveChecks)" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" container="body" triggers="mouseenter:mouseleave">
+            <button type="button" disabled class="btn btn-primary btn-success">
+              <div *ngIf="criteria.id == null"><fa name="plus"></fa> Ajouter le critère</div>
+              <div *ngIf="criteria.id != null"><fa name="edit"></fa> Modifier le critère</div>
+            </button>
+          </div>
+          <button *ngIf="formService.checkEmptyChecks(saveChecks)" type="submit" class="btn btn-primary btn-success pull-right">
+            <div *ngIf="criteria.id == null"><fa name="plus"></fa> Ajouter le critère</div>
+            <div *ngIf="criteria.id != null"><fa name="edit"></fa> Modifier le critère</div>
+          </button>
+          <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()"><fa name="times"></fa> Annuler</button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

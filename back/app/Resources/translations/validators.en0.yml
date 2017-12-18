@@ -1,0 +1,13 @@
+email_not_valid: This value is not a valid email address.
+not_null: This value should not be null.
+not_blank: This value should not be blank.
+not_valid: This value is not valid.
+greater_than_0: This value should be greater than 0.
+greater_than_1: This value should be greater than 1.
+greater_than_2: This value should be greater than 2.
+date_assignment: This value should be greater than 'date_start_assignment'.
+date_correction: This value should be greater than 'date_start_correction'.
+date_correction_assignment: This value should be greater than 'date_end_assignment'.
+assignment_must_be_active: This value should be 'true'.
+already_used: This value is already used.
+lower_than_%number%: This value should be lower than %number%.

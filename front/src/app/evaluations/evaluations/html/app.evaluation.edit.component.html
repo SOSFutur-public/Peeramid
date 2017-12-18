@@ -1,0 +1,7 @@
+<div *ngIf="editEvaluation" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-sm-12">
+    <app-evaluation-form [evaluation]="editEvaluation" [(dirty)]="dirty"></app-evaluation-form>
+  </div>
+
+</div>

@@ -1,0 +1,56 @@
+<div class="container-fluid" [@routerAnimation]>
+
+  <div class="col-sm-12">
+
+    <h1 class="page-header">
+      Qualité des évaluateurs
+      <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+        <fa name="arrow-left"></fa> Retour aux statistiques
+      </button>
+    </h1>
+
+    <div *ngIf="!(reliabilities.length > 0)" class="col-sm-12">
+      <span class="col-sm-12 alert alert-warning">Aucune fiabilité n'a encore été définie</span>
+    </div>
+    <div *ngIf="reliabilities.length > 0" class="col-sm-12">
+      <div class="stats-table-wrapper" style="width : 100%">
+        <table class="stats-table">
+          <thead>
+          <tr>
+            <th>Correcteur</th>
+            <ng-template ngFor let-criteriaName [ngForOf]="criteriaNames">
+              <th class="th-rotate text-center">
+                {{ criteriaName }}<br>
+                Fiabilité
+              </th>
+            </ng-template>
+            <th class="th-rotate text-center">
+              Moyenne de fiabilité
+            </th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <tr *ngFor="let reliability of reliabilities" style="border-bottom: 1px solid #ccc">
+            <td class="author-detail-lg">
+              {{ reliability.user ? reliability.user.name() : reliability.group.name }}
+            </td>
+            <ng-template ngFor let-criteriaName [ngForOf]="criteriaNames">
+              <td class="value-detail-lg text-center">
+                <span *ngIf="reliability.criterias_reliability[criteriaName] >= 0 && reliability.criterias_reliability[criteriaName] != null">
+                  {{ reliability.criterias_reliability[criteriaName] | number : '1.2-2' }}%
+                </span>
+              </td>
+            </ng-template>
+            <td class="value-detail-lg text-center">
+              <span *ngIf="reliability.average_reliability >= 0 && reliability.average_reliability != null">
+                {{ reliability.average_reliability | number : '1.2-2' }}%
+              </span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+imports:
+    - { resource: config.yml }
+
+framework:
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: true
+    profiler: false
+
+# web_profiler:
+#     toolbar: false
+#     intercept_redirects: false
+
+monolog:
+    handlers:
+        main:
+            type: rotating_file
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            max_files: 10
+            channels: [!event, !doctrine, !security]
+        error:
+            type: rotating_file
+            path: "%kernel.logs_dir%/%kernel.environment%_error.log"
+            level: error
+            max_files: 10
+            channels: [!event]
+        security:
+            type: rotating_file
+            path: "%kernel.logs_dir%/%kernel.environment%_security.log"
+            level: debug
+            max_files: 10
+            channels: [security]
+        db:
+            type: rotating_file
+            path: "%kernel.logs_dir%/%kernel.environment%_db.log"
+            level: debug
+            max_files: 10
+            channels: [doctrine]
+        console:
+            type:   console
+            channels: [!event, !doctrine]
+        mail:
+            type:         fingers_crossed
+            action_level: error
+            handler:      deduplicated
+        deduplicated:
+            type:    deduplication
+            handler: swift
+        swift:
+            type:       swift_mailer
+            from_email: 'peeramid.error@sos-futur.fr'
+            to_email:   ['dev@sos-futur.fr', 'nicolas.meyer@sos-futur.fr']
+            subject:    'An Error Occurred! %%message%%'
+            level:      debug
+            formatter:  monolog.formatter.html
+            content_type: text/html

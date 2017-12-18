@@ -1,0 +1,48 @@
+<div class="container-fluid" [@routerAnimation]>
+  <div class="col-lg-12">
+    <h1 class="page-header">Paramètres de l'application</h1>
+  </div>
+  <div class="col-lg-12">
+
+    <!-- Settings form -->
+    <form *ngIf="settingsForm" [formGroup]="settingsForm" (ngSubmit)="saveSettings()"
+          class="form-horizontal validated-form" novalidate autocomplete="off">
+
+      <!-- Error -->
+      <div *ngIf="invalidForm">
+        <div class="col-lg-12 alert alert-danger">
+          Votre formulaire est invalide. Merci de le corriger avant de valider.
+        </div>
+      </div>
+
+      <!-- Parameters list -->
+      <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['uploadSizeLimit'].length > 0) || (backChecks && backChecks['uploadSizeLimit'].length > 0 && uploadSizeLimitControl.pristine), 'has-success': saveChecks && !(saveChecks['uploadSizeLimit'].length > 0)}">
+        <label class="col-sm-4 control-label">{{ settings[0].name }}</label>
+        <div class="col-sm-8">
+          <input type="number" step="1" min="0" class="form-control" formControlName="0" placeholder="Taille maximum des fichiers à uploader."/>
+          <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[uploadSizeLimitControl]" [frontCheck]="saveChecks['uploadSizeLimit']" [backCheck]="backChecks['uploadSizeLimit']"></app-core-form-errors>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Save button popover's template -->
+      <ng-template #savePopover>
+        <p *ngFor="let check of formService.checksToArray(saveChecks, saveControls)">
+          <strong>{{ check }}</strong> invalide.
+        </p>
+      </ng-template>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div *ngIf="!formService.checkEmptyChecks(saveChecks)" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" container="body" triggers="mouseenter:mouseleave">
+            <button type="button" class="btn btn-primary btn-success" disabled><fa name="floppy-o"></fa> {{ 'Enregistrer les modifications' }}</button>
+          </div>
+          <button *ngIf="formService.checkEmptyChecks(saveChecks)" type="submit" class="btn btn-primary btn-success pull-right"><fa name="floppy-o"></fa> {{ 'Enregistrer les modifications' }}</button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</div>

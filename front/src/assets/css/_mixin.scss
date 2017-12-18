@@ -1,0 +1,10 @@
+//MIXIN
+@mixin listeNoStyle{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+@mixin linkNoStyle{
+  color: inherit;
+  text-decoration: none;
+}

@@ -1,0 +1,52 @@
+<div *ngIf="!authService.loggedIn()" id="login" class="container-fluid" [@routerAnimation]>
+  <div class="col-md-4 col-md-offset-4">
+
+      <h2 class="text-center">
+        Nouveau mot de passe
+      </h2>
+
+      <div [hidden]="error === null" class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        Erreur : {{ error }}
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+        <fieldset formGroupName="passwordGroup" [ngClass]="{'has-error': loginForm.controls.passwordGroup.errors && (passwordControl.dirty || passwordControl.touched) && (passwordConfirmControl.dirty || passwordConfirmControl.touched)}">
+
+          <div class="form-group" [ngClass]="{'has-error': passwordControl.invalid && (passwordControl.dirty || passwordControl.touched), 'has-success': passwordControl.valid && (passwordControl.dirty || passwordControl.touched)}">
+            <input type="password" class="form-control" formControlName="password" placeholder="Mot de passe"/>
+            <div *ngIf="passwordControl.errors && (passwordControl.dirty || passwordControl.touched)">
+              <p *ngIf="passwordControl.errors.required" class="label label-danger">
+                Le mot de passe est requis
+              </p>
+              <p *ngIf="passwordControl.errors.NotStrongPassword" class="label label-danger">
+                Le mot de passe n'est pas assez robuste : min. 8 caractères et au moins 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-group" [ngClass]="{'has-error': passwordConfirmControl.invalid && (passwordConfirmControl.dirty || passwordConfirmControl.touched), 'has-success': passwordConfirmControl.valid && (passwordConfirmControl.dirty || passwordConfirmControl.touched)}">
+            <input type="password" class="form-control" formControlName="passwordConfirm" placeholder="Confirmation du Mot de passe"/>
+            <div *ngIf="passwordConfirmControl.errors && (passwordConfirmControl.dirty || passwordConfirmControl.touched)">
+              <p *ngIf="passwordConfirmControl.errors.required" class="label label-danger">
+                Il faut retaper le mot de passe
+              </p>
+            </div>
+            <div *ngIf="loginForm.controls.passwordGroup.errors && (passwordControl.dirty || passwordControl.touched) && (passwordConfirmControl.dirty || passwordConfirmControl.touched)">
+              <p *ngIf="loginForm.controls.passwordGroup.errors.UnmatchingPasswords"
+                 class="label label-danger">
+                Les mots de passe doivent êtres identiques
+              </p>
+            </div>
+          </div>
+
+        </fieldset>
+
+        <button type="submit" class="btn btn-success pull-right" [disabled]="!loginForm.valid">Réinitialiser mon mot de passe</button>
+        <button type="button" class="btn btn-danger pull-right" (click)="cancel()">Annuler</button>
+
+      </form>
+
+    </div>
+</div>

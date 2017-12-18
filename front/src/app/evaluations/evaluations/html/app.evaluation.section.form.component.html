@@ -1,0 +1,111 @@
+<div id="evaluation-section-form" class="container-fluid sidebar-slider" [@slideInOutAnimation]>
+
+  <button type="button" class="close" (click)="cancel()"><fa name="close"></fa></button>
+
+  <div class="col-md-12">
+    <h1 class="page-header">{{ section.id != null ? 'Modification' : 'Nouvelle' }} section</h1>
+  </div>
+
+  <div class="col-md-12">
+
+    <form *ngIf="sectionForm" [formGroup]="sectionForm" (ngSubmit)="saveSection()" class="form-horizontal" novalidate autocomplete="off">
+
+      <fieldset formGroupName="section">
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['sectionTitle'].length > 0) || (backChecks && backChecks['sectionTitle'].length > 0 && sectionTitleControl.pristine), 'has-success': saveChecks && !(saveChecks['sectionTitle'].length > 0)}">
+          <label class="col-sm-3 control-label">
+            Titre de section
+          </label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" formControlName="sectionTitle" placeholder="Titre">
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[sectionTitleControl]" [frontCheck]="saveChecks['sectionTitle']" [backCheck]="backChecks['sectionTitle']"></app-core-form-errors>
+          </div>
+        </div>
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['sectionSubject'].length > 0) || (backChecks && backChecks['sectionSubject'].length > 0 && sectionSubjectControl.pristine), 'has-success': saveChecks && !(saveChecks['sectionSubject'].length > 0)}">
+          <div class="col-sm-12">
+            <textarea class="form-control" formControlName="sectionSubject" id="wysiwyg-sectionSubject"></textarea>
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[sectionSubjectControl]" [frontCheck]="saveChecks['sectionSubject']" [backCheck]="backChecks['sectionSubject']"></app-core-form-errors>
+          </div>
+        </div>
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['sectionType'].length > 0) || (backChecks && backChecks['sectionType'].length > 0 && sectionTypeControl.pristine), 'has-success': saveChecks && !(saveChecks['sectionType'].length > 0)}">
+          <label class="col-sm-3 control-label">
+            Type de section
+          </label>
+          <div class="col-sm-9">
+            <ss-multiselect-dropdown *ngIf="sectionTypes.length > 0" [options]="sectionTypes" [texts]="sectionTypesSelectTexts" [settings]="singleSelectSettings" formControlName="sectionType"></ss-multiselect-dropdown>
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[sectionTypeControl]" [frontCheck]="saveChecks['sectionType']" [backCheck]="backChecks['sectionType']"></app-core-form-errors>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset *ngIf="sectionTypeControl.value == 2" formGroupName="sectionFile">
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['sectionFileLimitFileTypes'].length > 0) || (backChecks && backChecks['sectionFileLimitFileTypes'].length > 0 && sectionFileLimitFileTypesControl.pristine), 'has-success': saveChecks && !(saveChecks['sectionFileLimitFileTypes'].length > 0)}">
+          <label class="col-sm-3 control-label">Limitation sur les types de fichiers</label>
+          <div class="col-sm-9 radio">
+            <label>
+              <input type="radio" [value]="true" formControlName="sectionFileLimitFileTypes">
+              Limité
+            </label>
+            <label>
+              <input type="radio" [value]="false" formControlName="sectionFileLimitFileTypes">
+              Libre
+            </label>
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[sectionFileLimitFileTypesControl]" [frontCheck]="saveChecks['sectionFileLimitFileTypes']" [backCheck]="backChecks['sectionFileLimitFileTypes']"></app-core-form-errors>
+          </div>
+        </div>
+        <div *ngIf="sectionFileLimitFileTypesControl.value" class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['sectionFileTypes'].length > 0) || (backChecks && backChecks['sectionFileTypes'].length > 0 && sectionFileTypesControl.pristine), 'has-success': saveChecks && !(saveChecks['sectionFileTypes'].length > 0)}">
+          <label class="col-sm-3 control-label">
+            Types de fichier acceptés
+          </label>
+          <div class="col-sm-9">
+            <ss-multiselect-dropdown *ngIf="fileTypes.length > 0" [options]="fileTypes" [texts]="fileTypesSelectTexts" [settings]="multipleSelectSettings" formControlName="sectionFileTypes"></ss-multiselect-dropdown>
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[sectionFileTypesControl]" [frontCheck]="saveChecks['sectionFileTypes']" [backCheck]="backChecks['sectionFileTypes']"></app-core-form-errors>
+          </div>
+        </div>
+        <div class="form-group" [ngClass]="{'has-error': (saveChecks && saveChecks['sectionFileMaxSize'].length > 0) || (backChecks && backChecks['sectionFileMaxSize'].length > 0 && sectionFileMaxSizeControl.pristine), 'has-success': saveChecks && !(saveChecks['sectionFileMaxSize'].length > 0)}">
+          <label class="col-sm-3 control-label">
+            Taille max du fichier <small>(Mo)</small>
+            <p class="info">Taille Max générale : {{ maxSizeSetting }}Mo</p>
+          </label>
+          <div class="col-sm-4">
+            <input type="number" class="form-control" min="0" [max]="maxSizeSetting" step="1" formControlName="sectionFileMaxSize" placeholder="Taille max">
+            <app-core-form-errors *ngIf="saveChecks !== null && backChecks !== null" [controls]="[sectionFileMaxSizeControl]" [frontCheck]="saveChecks['sectionFileMaxSize']" [backCheck]="backChecks['sectionFileMaxSize']"></app-core-form-errors>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Save button popover's template -->
+      <ng-template #savePopover>
+        <p *ngFor="let check of formService.checksToArray(saveChecks, saveControls)">
+          <strong>{{ check }}</strong> invalide.
+        </p>
+      </ng-template>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div *ngIf="!formService.checkEmptyChecks(saveChecks)" class="pull-right" popoverTitle="Impossible d'enregistrer" [popover]="savePopover" container="body" triggers="mouseenter:mouseleave">
+            <button type="button" disabled class="btn btn-primary btn-success">
+              <span *ngIf="section.id == null"><fa name="plus"></fa> Ajouter la section</span>
+              <span *ngIf="section.id != null"><fa name="edit"></fa> Modifier la section</span>
+            </button>
+          </div>
+          <div *ngIf="formService.checkEmptyChecks(saveChecks)" class="pull-right">
+            <div *ngIf="sectionTypeControl.value == 2 && sectionFileMaxSizeControl.value == null" popoverTitle="Taille max du fichier" [popover]="'Si vous ne définissez pas de taille max, la taille max par défaut (' + maxSizeSetting + 'Mo) sera appliquée'" container="body" triggers="mouseenter:mouseleave">
+              <button type="submit" class="btn btn-primary btn-success">
+                <span *ngIf="section.id == null"><fa name="plus"></fa> Ajouter la section</span>
+                <span *ngIf="section.id != null"><fa name="edit"></fa> Modifier la section</span>
+              </button>
+            </div>
+            <button *ngIf="!(sectionTypeControl.value == 2 && sectionFileMaxSizeControl.value == null)" type="submit" class="btn btn-primary btn-success">
+              <span *ngIf="section.id == null"><fa name="plus"></fa> Ajouter la section</span>
+              <span *ngIf="section.id != null"><fa name="edit"></fa> Modifier la section</span>
+            </button>
+          </div>
+          <button type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()"><fa name="times"></fa> Annuler</button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

@@ -1,0 +1,28 @@
+<div *ngIf="!authService.loggedIn()" id="login" class="container-fluid" [@routerAnimation]>
+  <div class="col-md-4 col-md-offset-4">
+
+      <h2 class="text-center">
+        Authentification
+      </h2>
+
+      <div [hidden]="error === null" class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        Erreur : {{ error }}
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Identifiant" formControlName="username">
+        </div>
+
+        <div class="form-group">
+          <input type="password" class="form-control" placeholder="Mot de passe" formControlName="password">
+        </div>
+
+        <button type="submit" class="btn btn-success pull-right" [disabled]="!loginForm.valid">Se connecter</button>
+      </form>
+
+      <a (click)="toRequest()">Mot de passe oublié ?</a>
+
+    </div>
+</div>

@@ -1,0 +1,23 @@
+<div *ngIf="loggedOut()">
+
+  <app-navbar></app-navbar>
+
+  <div *ngIf="authService.loggedIn()">
+    <app-menubar></app-menubar>
+  </div>
+
+  <div *ngIf="ok" id="router-outlet">
+    <div id="alert" class="{{ alertService.alertClass }}" [@alertAnimation]='alertService.alert'>
+      <span *ngIf="alertService.alertClass === 'success'"><fa name="check-circle-o"></fa></span>
+      <span [innerHtml]="alertService.alertMessage"></span>
+    </div>
+    <router-outlet>
+      <span *ngIf="loadingComponent" class="loader"></span>
+    </router-outlet>
+  </div>
+
+  <div *ngIf="!authService.loggedIn()" id="menubar-footer">
+    <div id="sosf">Powered by SOS FUTUR</div>
+  </div>
+
+</div>

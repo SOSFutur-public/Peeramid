@@ -1,0 +1,6 @@
+<div *ngIf="editGroup" class="container-fluid" [@routerAnimation]>
+  <div class="col-md-12">
+    <h1 class="page-header">Modifier {{ editGroup.name }}</h1>
+    <app-group-form [group]="editGroup" [(dirty)]="dirty"></app-group-form>
+  </div>
+</div>

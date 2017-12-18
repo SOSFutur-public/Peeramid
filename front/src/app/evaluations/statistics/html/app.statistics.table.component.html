@@ -1,0 +1,349 @@
+<script src="../service/app.statistics.service.ts"></script>
+<div *ngIf="evaluation" id="statistics-criterion" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-sm-12">
+
+    <h1 *ngIf="statsType === 'global'" class="page-header">
+      Statistiques
+      <div class="pull-right">
+        <div class="btn-group" dropdown>
+          <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+            <fa name="cog"></fa> Paramètres de notations <span class="caret"></span>
+          </button>
+          <ul *dropdownMenu class="dropdown-menu" role="menu">
+            <li role="menuitem"><a class="dropdown-item" [routerLink]="['/teacher/statistics', evaluation.id, 'parameters']"><fa name="filter"></fa> Options de notation</a></li>
+            <li role="menuitem"><a class="dropdown-item" [routerLink]="['/teacher/statistics', evaluation.id, 'feedbacks']"><fa name="comments"></fa> Définir les feedbacks</a></li>
+            <li role="menuitem"><a class="dropdown-item" [routerLink]="['/teacher/statistics', evaluation.id, 'calibration']"><fa name="bar-chart"></fa> Calibrage</a></li>
+          </ul>
+        </div>
+        <div class="btn-group" dropdown>
+          <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+            <fa name="area-chart"></fa> Statistiques <span class="caret"></span>
+          </button>
+          <ul *dropdownMenu class="dropdown-menu" role="menu">
+            <li role="menuitem"><a class="dropdown-item" [routerLink]="['/teacher/statistics', evaluation.id, 'criterion']"><fa name="table"></fa> Statistiques par critère</a></li>
+            <li role="menuitem"><a class="dropdown-item" [routerLink]="['/teacher/statistics', evaluation.id, 'charts']"><fa name="pie-chart"></fa> Proportions des notes</a></li>
+            <li class="divider dropdown-divider"></li>
+            <li role="menuitem"><a class="dropdown-item" [routerLink]="['/teacher/statistics', evaluation.id, 'examiners-reliability']"><fa name="thumbs-o-up"></fa> Fiabilité des correcteurs</a></li>
+          </ul>
+        </div>
+        <button type="button" class="btn btn-primary" (click)="exportStats()">
+          <fa name="download"></fa> Export
+        </button>
+      </div>
+    </h1>
+    <h1 *ngIf="statsType === 'criterion'" class="page-header">
+      Détails par critère
+      <div class="pull-right">
+        <button type="button" class="btn btn-primary" [routerLink]="['/teacher/statistics', evaluation.id, 'calibration']">
+          <fa name="bar-chart"></fa> Calibrage
+        </button>
+        <button type="button" class="btn btn-primary btn-danger" (click)="cancel()">
+          <fa name="arrow-left"></fa> Retour aux statistiques
+        </button>
+      </div>
+    </h1>
+
+    <div *ngIf="state">
+      <p class="col-sm-4 text-center alert" [ngClass]="{'alert-success': state.assignment === 'non commencée', 'alert-warning': state.assignment === 'en cours', 'alert-danger': state.assignment === 'terminée' || state.assignment === 'désactivée'}">
+        <span class="label label-default">
+          Période de devoir:
+        </span>
+        <span class="label" [ngClass]="{'label-success': state.assignment === 'non commencée', 'label-warning': state.assignment === 'en cours', 'label-danger': state.assignment === 'terminée' || state.assignment === 'désactivée'}">
+          {{ state.assignment }}
+        </span>
+      </p>
+      <p class="col-sm-4 text-center alert" [ngClass]="{'alert-success': state.correction === 'non commencée', 'alert-warning': state.correction === 'en cours', 'alert-danger': state.correction === 'terminée' || state.correction === 'désactivée'}">
+        <span class="label label-default">
+          Période de correction:
+        </span>
+        <span class="label" [ngClass]="{'label-success': state.correction === 'non commencée', 'label-warning': state.correction === 'en cours', 'label-danger': state.correction === 'terminée' || state.correction === 'désactivée'}">
+          {{ state.correction }}
+        </span>
+      </p>
+      <p class="col-sm-4 text-center alert" [ngClass]="{'alert-success': state.opinion === 'non commencée', 'alert-warning': state.opinion === 'en cours', 'alert-danger': state.opinion === 'terminée' || state.opinion === 'désactivée'}">
+        <span class="label label-default">
+          Période d'opinion:
+        </span>
+        <span class="label" [ngClass]="{'label-success': state.opinion === 'non commencée', 'label-warning': state.opinion === 'en cours', 'label-danger': state.opinion === 'terminée' || state.opinion === 'désactivée'}">
+          {{ state.opinion }}
+        </span>
+      </p>
+    </div>
+
+    <div>
+      <h4>{{ evaluation.name }}</h4>
+      <p>
+        <small *ngIf="evaluation.subject" [innerHtml]="evaluation.subject"></small>
+        <span *ngIf="!evaluation.subject" class="alert alert-warning">
+          Cette évaluation n'a pas de sujet
+        </span>
+      </p>
+    </div>
+
+    <!-- Opinion popover's template -->
+    <ng-template #opinionPopover>
+      <p *ngIf="!opinionCommentsToDisplay" class="info">
+        Cette opinion ne possède pas de commentaire
+      </p>
+      <p *ngIf="opinionCommentsToDisplay" [innerHtml]="opinionCommentsToDisplay"></p>
+    </ng-template>
+
+    <div *ngIf="!(evaluation.assignments.length > 0)" class="col-sm-12">
+      <span class="col-sm-12 alert alert-warning">Aucun devoir n'a encore été défini</span>
+    </div>
+    <div *ngIf="evaluation.assignments.length > 0" class="stats-table-wrapper">
+      <table class="stats-table">
+        <thead style="border-bottom: 1px solid #ccc">
+        <tr>
+          <th class="large">Auteur</th>
+          <th class="large">Correcteur</th>
+          <ng-template ngFor let-correctionSection [ngForOf]="evaluation.assignments[0]?.corrections[0]?.correction_sections" let-correctionSectionIndex="index">
+            <ng-template ngFor let-correctionCriteria [ngForOf]="correctionSection.correction_criterias" let-correctionCriteriaIndex="index">
+              <th class="th-rotate first-criteria-stats"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Note</span></span></div></th>
+              <th class="th-rotate"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Fiabilité</span></span></div></th>
+              <th class="th-rotate"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Moyenne brute</span></span></div></th>
+              <th class="th-rotate"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Ecart type</span></span></div></th>
+              <th class="th-rotate"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Moyenne pondérée</span></span></div></th>
+              <th class="th-rotate"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Fiabilité moyenne</span></span></div></th>
+              <th class="th-rotate teacher-stats"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Note enseignant</span></span></div></th>
+              <th class="th-rotate teacher-stats"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Fiabilité recalculée</span></span></div></th>
+              <th class="th-rotate final-stats"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Note finale</span></span></div></th>
+              <th class="th-rotate final-stats"><div><span>S{{ correctionSectionIndex + 1 }} C{{ correctionCriteriaIndex + 1 }} <span class="bold">Opinion</span></span></div></th>
+            </ng-template>
+          </ng-template>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Note Brute</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Fiabilité des notes</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Moyenne brute</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Ecart type</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Moyenne pondérée</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Fiabilité</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Opinion positif / négatif</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Note enseignant</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Fiabilité recalculée</span></div></th>
+          <th class="text-center th-rotate global-stats"><div><span class="bold">Note finale</span></div></th>
+        </tr>
+        </thead>
+
+        <tbody *ngFor="let assignment of evaluation.assignments">
+        <!-- Begin: No corrections row -->
+        <tr *ngIf="!(assignment.corrections.length > 0)" style="border-bottom: 1px solid #ccc">
+          <!-- Begin: Assignment author column -->
+          <td class="vcenter author-detail-lg">
+            {{ evaluation.individual_assignment ? assignment.user.name() : assignment.group.name }}<br>
+            <a *ngIf="assignment.date_submission" class="label label-success" [routerLink]="['/teacher/assignment', assignment.id, 'view-student']">
+              Devoir rendu ({{ assignment.date_submission | date:'dd/MMM/yyyy HH:mm' }})
+            </a>
+            <span *ngIf="!assignment.date_submission" class="label" [ngClass]="{'label-warning': state.assignment === 'en cours', 'label-danger': state.assignment !== 'en cours'}">
+              Devoir {{ state.assignment === 'en cours' ? 'en cours' : 'non rendu' }}
+            </span>
+            <a *ngIf="assignment.date_submission && findTeacherCorrection(assignment)" class="label label-primary" [routerLink]="['/teacher/correction', findTeacherCorrection(assignment).id, 'mark-student']">
+              Corriger le devoir
+            </a>
+          </td>
+          <!-- End: Assignment author column -->
+          <!-- Begin: Alert message column -->
+          <td class="vcenter author-detail-lg" [attr.colspan]="10"> <!-- Make the colspan dynamic -->
+            <i>Aucune correction effectuée pour l'instant...</i>
+          </td>
+          <!-- End: Alert message column -->
+        </tr>
+        <!-- End: No corrections row -->
+        <!-- Begin: Valid row -->
+        <tr *ngFor="let correction of assignment.corrections; let firstCorrection = first" style="border-bottom: 1px solid #ccc">
+          <!-- Begin: Assignment author column -->
+          <td *ngIf="firstCorrection" class="vcenter author-detail-lg" [attr.rowspan]="assignment.corrections.length">
+            {{ evaluation.individual_assignment ? assignment.user.name() : assignment.group.name }}<br>
+            <a *ngIf="assignment.date_submission" class="label label-success" [routerLink]="['/teacher/assignment', assignment.id, 'view-student']">
+              Devoir rendu ({{ assignment.date_submission | date:'dd/MMM/yyyy HH:mm' }})
+            </a>
+            <span *ngIf="!assignment.date_submission" class="label" [ngClass]="{'label-warning': state.assignment === 'en cours', 'label-danger': state.assignment !== 'en cours'}">
+              Devoir {{ state.assignment === 'en cours' ? 'en cours' : 'non rendu' }}
+            </span>
+            <a *ngIf="assignment.date_submission && findTeacherCorrection(assignment)" class="label label-primary" [routerLink]="['/teacher/correction', findTeacherCorrection(assignment).id, 'mark-student']">
+              Corriger le devoir
+            </a>
+          </td>
+          <!-- End: Assignment author column -->
+          <!-- Begin: Correction author column -->
+          <td class="vcenter author-detail-lg">
+            {{ evaluation.individual_correction ? correction.user.name() : correction.group.name }}<br>
+            <a *ngIf="correction.date_submission" class="label label-primary" [routerLink]="['/teacher/correction', correction.id, 'view-student']">
+              Voir la correction
+            </a>
+            <span *ngIf="!correction.date_submission" class="label" [ngClass]="{'label-warning': state.correction === 'en cours', 'label-danger': state.correction !== 'en cours'}">
+              Correction {{ state.correction === 'en cours' ? 'en cours' : 'non effectuée' }}
+            </span>
+          </td>
+          <!-- End: Correction author column -->
+          <!-- Begin: Criterion columns -->
+          <ng-template ngFor let-correctionSection [ngForOf]="correction.correction_sections">
+            <ng-template ngFor let-correctionCriteria [ngForOf]="correctionSection.correction_criterias">
+              <!-- Begin: Criteria columns -->
+              <!-- Begin: Criteria mark per correction author column -->
+              <td class="value-detail text-center vcenter first-criteria-stats">
+                {{ correctionCriteria.mark | number : '1.2-2' }}
+              </td>
+              <!-- End: Criteria mark per correction author column -->
+              <!-- Begin: Criteria reliability per correction author column -->
+              <td class="value-detail text-center vcenter">
+                <span *ngIf="correctionCriteria.reliability >= 0">
+                  {{ correctionCriteria.reliability | number : '1.2-2' }}%
+                </span>
+              </td>
+              <!-- End: Criteria reliability per correction author column -->
+              <!-- Begin: Criteria raw mark column -->
+              <td *ngIf="firstCorrection"
+                  class="value-detail text-center vcenter" [attr.rowspan]="assignment.corrections.length">
+                <span *ngIf="getAssignmentCriteria(correctionCriteria, assignment.assignment_sections)">
+                  {{ getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).raw_mark | number : '1.2-2' }}
+                </span>
+              </td>
+              <!-- End: Criteria raw mark column -->
+              <!-- Begin: Criteria standard deviation column -->
+              <td *ngIf="firstCorrection" class="value-detail text-center vcenter" [attr.rowspan]="assignment.corrections.length">
+                <span *ngIf="getAssignmentCriteria(correctionCriteria, assignment.assignment_sections)">
+                  {{ getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).standard_deviation | number : '1.2-2' }}
+                </span>
+              </td>
+              <!-- End: Criteria standard deviation column -->
+              <!-- Begin: Criteria weighted mark column -->
+              <td *ngIf="firstCorrection" class="value-detail text-center vcenter" [attr.rowspan]="assignment.corrections.length">
+                <span *ngIf="getAssignmentCriteria(correctionCriteria, assignment.assignment_sections)">
+                  <fa *ngIf="!(getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark >= 0 || getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark < 0) && getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).raw_mark >= 0"
+                      name="times-circle" popoverTitle="Fiabilité nulle" popover="La fiabilité de ce critère ne permet pas de définir une moyenne pondérée" container="body" triggers="mouseenter:mouseleave">
+                  </fa>
+                  <span *ngIf="!(!(getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark >= 0 || getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark < 0) && getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).raw_mark >= 0)">
+                    {{ getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark | number : '1.2-2' }}
+                  </span>
+                </span>
+              </td>
+              <!-- End: Criteria weighted mark column -->
+              <!-- Begin: Criteria average reliability column -->
+              <td *ngIf="firstCorrection" class="value-detail text-center vcenter" [attr.rowspan]="assignment.corrections.length">
+                <span *ngIf="getAssignmentCriteria(correctionCriteria, assignment.assignment_sections) && getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).reliability >= 0">
+                  {{ getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).reliability | number : '1.2-2' }}%
+                </span>
+              </td>
+              <!-- End: Criteria average reliability column -->
+              <!-- Begin: Criteria teacher's mark column -->
+              <td *ngIf="firstCorrection" class="value-detail text-center vcenter teacher-stats" [attr.rowspan]="assignment.corrections.length">
+                <span *ngIf="findTeacherCorrectionCriteria(assignment, correctionCriteria)">
+                  {{ findTeacherCorrectionCriteria(assignment, correctionCriteria).mark | number : '1.2-2' }}
+                </span>
+              </td>
+              <!-- End: Criteria teacher's mark column -->
+              <!-- Begin: Criteria recalculated reliability per correction author column -->
+              <td class="value-detail text-center vcenter teacher-stats">
+                <span *ngIf="correctionCriteria.recalculated_reliability >= 0">
+                  {{ correctionCriteria.recalculated_reliability | number : '1.2-2' }}%
+                </span>
+              </td>
+              <!-- End: Criteria recalculated reliability per correction author column -->
+              <!-- Begin: Criteria final mark column -->
+              <td *ngIf="firstCorrection" class="value-detail text-center vcenter final-stats" [attr.rowspan]="assignment.corrections.length">
+                <div *ngIf="getAssignmentCriteria(correctionCriteria, assignment.assignment_sections)">
+                  <span *ngIf="!(getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark >= 0 || getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark < 0) && getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).raw_mark >= 0 && evaluation.mark_mode.id === 2 && (!evaluation.use_teacher_mark || (evaluation.use_teacher_mark && findTeacherCorrection(assignment) && !(findTeacherCorrection(assignment).mark >= 0 || findTeacherCorrection(assignment).mark < 0)))"
+                        class="label label-danger" popoverTitle="Calcul de la note finale" popover="La moyenne pondérée n'étant pas calculable, la moyenne brute est appliquée. Veuillez choisir un autre moyen de calculer la note finale, corrigez ce devoir ou revoyez vos fonctions de fiabilité" container="body" placement="left" triggers="mouseenter:mouseleave">
+                    {{ getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).mark | number : '1.2-2' }}
+                  </span>
+                  <span *ngIf="!(!(getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark >= 0 || getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).weighted_mark < 0) && getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).raw_mark >= 0 && evaluation.mark_mode.id === 2 && (!evaluation.use_teacher_mark || (evaluation.use_teacher_mark && findTeacherCorrection(assignment) && !(findTeacherCorrection(assignment).mark >= 0 || findTeacherCorrection(assignment).mark < 0))))">
+                    {{ getAssignmentCriteria(correctionCriteria, assignment.assignment_sections).mark | number : '1.2-2' }}
+                  </span>
+                </div>
+              </td>
+              <!-- End: Criteria final mark column -->
+              <!-- Begin: Criteria opinion per correction author column -->
+              <td class="value-detail text-center vcenter final-stats">
+                <div popoverTitle="Commentaire d'opinion" [popover]="opinionPopover" container="body" triggers="mouseenter:mouseleave" (mouseenter)="setOpinionCommentsToDisplay(correctionCriteria)">
+                  <img *ngIf="correctionCriteria.correction_opinion.opinion === 1" src="{{ environment.assets_path }}/assets/img/like.png" class="opinion_size">
+                  <img *ngIf="correctionCriteria.correction_opinion.opinion === -1" src="{{ environment.assets_path }}/assets/img/dislike.png" class="opinion_size">
+                  <fa *ngIf="correctionCriteria.correction_opinion.opinion === 0" name="ban"></fa>
+                </div>
+              </td>
+              <!-- End: Criteria opinion per correction author column -->
+              <!-- End: Criteria columns -->
+            </ng-template>
+          </ng-template>
+          <!-- Begin: Assignment mark per correction author column -->
+          <td class="value-detail-lg text-center">
+            {{ correction.mark | number : '1.2-2' }}
+          </td>
+          <!-- End: Assignment mark per correction author column -->
+          <!-- Begin: Assignment reliability per correction author column -->
+          <td class="value-detail-lg text-center">
+            <span *ngIf="correction.reliability >= 0">
+              {{ correction.reliability | number : '1.2-2' }}%
+            </span>
+          </td>
+          <!-- End: Assignment reliability per correction author column -->
+          <!-- Begin: Assignment raw mark column -->
+          <td *ngIf="firstCorrection" class="value-detail-lg text-center vcenter" [attr.rowspan]="assignment.corrections.length">
+            {{ assignment.raw_mark | number : '1.2-2' }}
+          </td>
+          <!-- End: Assignment raw mark column -->
+          <!-- Begin: Assignment standard deviation column -->
+          <td *ngIf="firstCorrection" class="value-detail-lg text-center vcenter" [attr.rowspan]="assignment.corrections.length">
+            {{ assignment.standard_deviation | number : '1.2-2' }}
+          </td>
+          <!-- End: Assignment standard deviation column -->
+          <!-- Begin: Assignment weighted mark column -->
+          <td *ngIf="firstCorrection" class="value-detail-lg text-center vcenter" [attr.rowspan]="assignment.corrections.length">
+            <fa *ngIf="!(assignment.weighted_mark >= 0 || assignment.weighted_mark < 0) && assignment.raw_mark >= 0"
+                name="times-circle" popoverTitle="Fiabilité nulle" popover="La fiabilité du devoir ne permet pas de définir une moyenne pondérée" container="body" triggers="mouseenter:mouseleave">
+            </fa>
+            <span *ngIf="!(!(assignment.weighted_mark >= 0 || assignment.weighted_mark < 0) && assignment.raw_mark >= 0) && assignment.warning"
+                  class="label label-danger" popoverTitle="Moyenne pondérée invalide" popover="La moyenne pondérée d'un ou plusieurs critères n'est pas calculable, veuillez consulter le détail du ou des critères concernés" container="body" triggers="mouseenter:mouseleave">
+              {{ assignment.weighted_mark | number : '1.2-2' }}
+            </span>
+            <span *ngIf="!(!(assignment.weighted_mark >= 0 || assignment.weighted_mark < 0) && assignment.raw_mark >= 0) && !assignment.warning">
+              {{ assignment.weighted_mark | number : '1.2-2' }}
+            </span>
+          </td>
+          <!-- End: Assignmnent weighted mark column -->
+          <!-- Begin: Assignment reliability column -->
+          <td *ngIf="firstCorrection" class="value-detail-lg text-center vcenter" [attr.rowspan]="assignment.corrections.length">
+            <span *ngIf="assignment.reliability >= 0">
+              {{ assignment.reliability | number : '1.2-2' }}%
+            </span>
+          </td>
+          <!-- End: Assignment reliability column -->
+          <!-- Begin: Assignment opinion per correction author column -->
+          <td class="value-detail-lg text-center vcenter">
+            <span class="label" [ngClass]="{'label-success': correction.thumbs_up > 0, 'label-default': !(correction.thumbs_up > 0)}">{{ correction.thumbs_up }}</span> / <span class="label" [ngClass]="{'label-danger': correction.thumbs_down > 0, 'label-default': !(correction.thumbs_down > 0)}">{{ correction.thumbs_down }}</span>
+          </td>
+          <!-- End: Assignment opinion per correction author column -->
+          <!-- Begin: Assignment teacher's mark column -->
+          <td *ngIf="firstCorrection" class="value-detail-lg text-center vcenter teacher-stats" [attr.rowspan]="assignment.corrections.length">
+            <span *ngIf="findTeacherCorrection(assignment)">
+              {{ findTeacherCorrection(assignment).mark | number : '1.2-2' }}
+            </span>
+          </td>
+          <!-- End: Assignment teacher's mark column -->
+          <!-- Begin: Assignment recalculated reliability per correction author column -->
+          <td class="value-detail-lg text-center vcenter teacher-stats">
+            {{ correction.recalculated_reliability | number : '1.2-2' }}
+          </td>
+          <!-- End: Assignment recalculated reliability per correction author column -->
+          <!-- Begin: Assignment final mark column -->
+          <td *ngIf="firstCorrection" class="value-detail-lg text-center vcenter final-stats" [attr.rowspan]="assignment.corrections.length">
+            <span *ngIf="!(assignment.weighted_mark >= 0 || assignment.weighted_mark < 0) && assignment.raw_mark >= 0 && evaluation.mark_mode.id === 2 && (!evaluation.use_teacher_mark || (evaluation.use_teacher_mark && findTeacherCorrection(assignment) && !(findTeacherCorrection(assignment).mark >= 0 || findTeacherCorrection(assignment).mark < 0)))"
+                  class="label label-danger" popoverTitle="Calcul de la note finale" popover="La moyenne pondérée n'est pas calculable, la moyenne brute du devoir est appliquée. Veuillez choisir un autre moyen de calculer la note finale, corrigez ce devoir ou revoyez vos fonctions de fiabilité" container="body" placement="left" triggers="mouseenter:mouseleave">
+              {{ assignment.mark | number : '1.2-2' }}
+            </span>
+            <span *ngIf="!(!(assignment.weighted_mark >= 0 || assignment.weighted_mark < 0) && assignment.raw_mark >= 0 && evaluation.mark_mode.id === 2 && (!evaluation.use_teacher_mark || (evaluation.use_teacher_mark && findTeacherCorrection(assignment) && !(findTeacherCorrection(assignment).mark >= 0 || findTeacherCorrection(assignment).mark < 0)))) && assignment.warning && (!evaluation.use_teacher_mark || (evaluation.use_teacher_mark && findTeacherCorrection(assignment) && !(findTeacherCorrection(assignment).mark >= 0 || findTeacherCorrection(assignment).mark < 0)))"
+                  class="label label-danger" popoverTitle="Moyenne pondérée invalide" popover="La moyenne pondérée d'un ou plusieurs critères n'est pas calculable, veuillez consulter le détail du ou des critères concernés" container="body" placement="left" triggers="mouseenter:mouseleave">
+              {{ assignment.mark | number : '1.2-2' }}
+            </span>
+            <span *ngIf="!(!(assignment.weighted_mark >= 0 || assignment.weighted_mark < 0) && assignment.raw_mark >= 0 && evaluation.mark_mode.id === 2 && (!evaluation.use_teacher_mark || (evaluation.use_teacher_mark && findTeacherCorrection(assignment) && !(findTeacherCorrection(assignment).mark >= 0 || findTeacherCorrection(assignment).mark < 0)))) && !(assignment.warning && (!evaluation.use_teacher_mark || (evaluation.use_teacher_mark && findTeacherCorrection(assignment) && !(findTeacherCorrection(assignment).mark >= 0 || findTeacherCorrection(assignment).mark < 0))))">
+              {{ assignment.mark | number : '1.2-2' }}
+            </span>
+          </td>
+          <!-- End: Assignment final mark column -->
+        </tr>
+        <!-- End: Valid row -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

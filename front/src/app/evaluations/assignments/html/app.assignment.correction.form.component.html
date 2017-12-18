@@ -1,0 +1,189 @@
+<div *ngIf="view_instructions || view_opinion" id="black"></div>
+
+<div *ngIf="correction && correctionAssets" id="assignment-correction" class="container-fluid" [@routerAnimation]>
+
+  <div class="col-lg-12">
+
+    <h1 class="page-header row">
+
+      <div class="col-md-9">
+        <div *ngIf="correction.assignment.evaluation.individual_correction">
+          <fa name="user"></fa> Correction individuelle : {{ correction.assignment.evaluation.name }}
+        </div>
+        <div *ngIf="!correction.assignment.evaluation.individual_correction">
+          <fa name="users"></fa> Correction de groupe : {{ correction.assignment.evaluation.name }}
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <button type="button" class="btn btn-primary pull-right" (click)="displayInstructions()">
+          <fa name="info-circle"></fa> Consignes
+        </button>
+        <button *ngIf="!correctionAssets.finished || authService.user.role.id === 3" type="button" class="btn btn-primary btn-danger pull-right" (click)="cancel()">
+          <fa name="arrow-left"></fa> Retour
+        </button>
+      </div>
+
+    </h1>
+
+    <h4 *ngIf="correction && !correction.assignment.evaluation.anonymity && !correctionId">
+      Devoir de {{ correctionAssets.author }}
+    </h4>
+
+  </div>
+
+
+  <!-- Sections form -->
+  <div class="col-sm-12">
+    <form *ngIf="correctionForm" [formGroup]="correctionForm"
+          class="form-horizontal validated-form" novalidate autocomplete="off">
+      <div formArrayName="sections">
+        <div *ngFor="let correctionSection of correction.correction_sections" class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              {{ correctionSection.assignment_section.section.title }}
+              <!--button type="button" ng-if="section.show_feedback" class="btn btn-sm btn-primary pull-right" ng-click="vm.showComments(section.id)">Voir les feedbacks de correction</button-->
+            </h3>
+          </div>
+          <div class="panel-body">
+            <p [innerHtml]="correctionSection.assignment_section.section.subject"></p>
+
+            <!-- Author's owner -->
+            <blockquote *ngIf="!correctionSection.assignment_section.answer">
+              <i>Pas de réponse</i>
+            </blockquote>
+            <blockquote *ngIf="correctionSection.assignment_section.answer">
+              <div *ngIf="correctionSection.assignment_section.section.section_type.id === 1">
+                <div [innerHtml]="correctionSection.assignment_section.answer"></div>
+              </div>
+              <div *ngIf="correctionSection.assignment_section.section.section_type.id === 2">
+                <a target='_blank' [href]="environment.upload_url + '/assignments/' + correction.assignment.id + '/sections/' + correctionSection.assignment_section.id + '/' + correctionSection.assignment_section.answer">{{ correctionSection.assignment_section.answer }}</a>
+              </div>
+              <div *ngIf="correctionSection.assignment_section.section.section_type.id === 3">
+                <a target="_blank" [href]="correctionSection.assignment_section.answer">{{ correctionSection.assignment_section.answer }}</a>
+              </div>
+            </blockquote>
+
+            <hr>
+
+            <!-- Correction criterias -->
+            <div *ngFor="let correctionCriteria of correctionSection.correction_criterias" class="col-sm-12" formGroupName="{{ correctionSection.assignment_section.section.order - 1 }}">
+
+              <h3><small [innerHtml]="correctionCriteria.criteria.description"></small></h3>
+              <div *ngIf="correctionId && correctionCriteria.correction_opinion && correction.user.role?.id !== 3" class="opinion">
+                <img src="{{ environment.assets_path }}/assets/img/like.png" [ngClass]="{'selected': correctionCriteria.correction_opinion.opinion > 0}" (click)="displayOpinion(correctionCriteria, true)" />
+                <img src="{{ environment.assets_path }}/assets/img/dislike.png" [ngClass]="{'selected': correctionCriteria.correction_opinion.opinion < 0}" (click)="displayOpinion(correctionCriteria, false)" />
+              </div>
+
+
+              <!-- Comments criteria -->
+              <div *ngIf="correctionCriteria.criteria.criteria_type.id === 1">
+                <div class="form-group" formGroupName="{{ correctionCriteria.criteria.order - 1 }}">
+                  <div class="col-sm-12" [ngClass]="{'has-error': criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.invalid, 'has-success': criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.valid && (criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.dirty || criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.touched)}">
+                    <textarea class="form-control" formControlName="comments" id="wysiwyg-comments-{{ correction.id }}-{{ correctionSection.assignment_section.section.order - 1 }}-{{ correctionCriteria.criteria.order - 1 }}" value=""></textarea>
+                    <div *ngIf="criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.errors && (criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.dirty || criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.touched)">
+                      <p *ngIf="criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.errors.required" class="label label-danger">
+                        Le commentaire est requis
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Choice criteria -->
+              <div *ngIf="correctionCriteria.criteria.criteria_type.id === 2">
+                <div class="form-group" formGroupName="{{ correctionCriteria.criteria.order - 1 }}">
+                  <div class="col-sm-offset-1 col-col-sm-10" [ngClass]="{'has-error': criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.invalid, 'has-success': criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.valid && (criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.dirty || criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.touched)}">
+                    <div class="radio" *ngFor="let criteria_choice of correctionCriteria.criteria.criteria_choices">
+                      <label>
+                        <input type="radio" [value]="criteria_choice.mark" formControlName="mark" placeholder="Entrez une note">
+                        {{ criteria_choice.name }} <p class="info">{{ criteria_choice.mark }} point{{ criteria_choice.mark > 1 ? 's' : ''}}</p>
+                      </label>
+                    </div>
+                    <div *ngIf="criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.errors && (criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.dirty || criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.touched)">
+                      <p *ngIf="criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.errors.required" class="label label-danger">
+                        Le choix est requis
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Judgment criteria -->
+              <div *ngIf="correctionCriteria.criteria.criteria_type.id === 3">
+                <fieldset formGroupName="{{ correctionCriteria.criteria.order - 1 }}">
+                  <div class="form-group" >
+                    <label class="col-md-2 control-label">
+                      Note :
+                      <p class="info">précision : {{ correctionCriteria.criteria.precision }}<br>
+                        min : {{ correctionCriteria.criteria.mark_min }} | max : {{ correctionCriteria.criteria.mark_max }}
+                      </p>
+                    </label>
+                    <div class="col-md-2" [ngClass]="{'has-error': criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.invalid, 'has-success': criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.valid && (criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.dirty || criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.touched)}">
+                      <input type="number" [step]="correctionCriteria.criteria.precision" [min]="correctionCriteria.criteria.mark_min" [max]="correctionCriteria.criteria.mark_max" class="form-control" formControlName="mark" placeholder="Note"/>
+                      <div *ngIf="criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.errors && (criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.dirty || criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.touched)">
+                        <p *ngIf="criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.errors.required && criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.comments.value != ''" class="label label-danger">
+                          La note est requise
+                        </p>
+                        <p *ngIf="criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.errors.max || criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.errors.min" class="label label-danger">
+                          La note doit être comprise entre {{ correctionCriteria.criteria.mark_min }} et {{ correctionCriteria.criteria.mark_max }}
+                        </p>
+                        <p *ngIf="criteriasGroups[correctionSection.assignment_section.section.order - 1][correctionCriteria.criteria.order - 1].controls.mark.errors.UnmatchingStep" class="label label-danger">
+                          La note doit avoir un pas de {{ correctionCriteria.criteria.precision }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-md-2 control-label">Commentaire :</label>
+                    <div class="col-md-10">
+                      <textarea class="form-control" formControlName="comments" id="wysiwyg-comments-{{ correction.id }}-{{correctionSection.assignment_section.section.order - 1}}-{{correctionCriteria.criteria.order - 1}}" value=""></textarea>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div *ngIf="!lastCriteria" class="col-sm-12">
+                <hr>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div *ngIf="!correctionAssets.finished && authService.user.role.id !== 3" class="col-sm-12">
+          Correction à effectuer du <strong>{{ correction.assignment.evaluation.date_start_correction | date:'dd/MM/yyyy à HH:mm' }}</strong>
+          au <strong>{{ correction.assignment.evaluation.date_start_correction | date:'dd/MM/yyyy à HH:mm' }}</strong>
+          <span class="help-block">Vous pouvez modifier votre correction jusqu'à la date limite de rendu des corrections</span>
+        </div>
+        <div *ngIf="correctionAssets.finished && authService.user.role.id !== 3" class="col-sm-12">
+          Opinion possible jusqu'au <strong>{{ correction.assignment.evaluation.date_end_opinion | date:'dd/MM/yyyy à HH:mm' }}</strong>
+        </div>
+        <div *ngIf="isEditable()" class="col-sm-12">
+          <div *ngIf="correctionForm.invalid" class="pull-right" popoverTitle="Impossible d'enregistrer" popover="La correction doit être complète pour être enregistrée" container="body" triggers="mouseenter:mouseleave">
+            <button type="submit" class="btn btn-primary btn-success pull-right" disabled><fa name="upload"></fa> Envoyer</button>
+          </div>
+          <button *ngIf="correctionForm.valid" type="submit" (click)="saveCorrection(false)" class="btn btn-primary btn-success pull-right"><fa name="upload"></fa> Envoyer</button>
+          <button type="submit" [disabled]="!correction.draft || correction.date_submission" (click)="saveCorrection(true)" class="btn btn-primary btn-info pull-right"><fa name="floppy-o"></fa> Enregistrer le brouillon</button>
+        </div>
+      </div>
+
+      <div *ngIf="environment.debug_log">
+        <pre>Value: {{ correctionForm.value | json }}</pre>
+        <pre>Valid: {{ correctionForm.valid }}</pre>
+      </div>
+
+    </form>
+  </div>
+
+  <div *ngIf="view_instructions" class="view-side-form">
+    <app-correction-instructions [correction]="correction" [(getViewInstructions)]="view_instructions"></app-correction-instructions>
+  </div>
+
+  <div *ngIf="view_opinion" class="view-side-form">
+    <app-correction-opinion [finished]="opinionAssets.finished" [opinion]="opinion_tmp" [correction]="correction" [(getViewOpinion)]="view_opinion" ([correction])="correction"></app-correction-opinion>
+  </div>
+
+</div>
