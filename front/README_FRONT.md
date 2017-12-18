@@ -48,10 +48,17 @@
 
 ## Production server
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag
-for a production build.
+To build the platform, run:
 
-###### ask Martin to describe the server build method
+````
+ng build
+````
+
+To build in production, run:
+
+````
+ng build -prod
+````
 
 ## Project specifications
 

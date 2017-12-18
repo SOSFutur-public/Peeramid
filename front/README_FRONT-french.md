@@ -36,7 +36,7 @@
       upload_url: '/* votre chemin d'accès aux fichiers uploadés */'
       ````
 
-  3. Pour démarrer le serveur de developpement, lancez:
+  3. Pour démarrer le serveur de développement, lancez:
   
       ````
       ng serve
@@ -48,8 +48,17 @@
 
 ## Serveur de production
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag
-for a production build.
+Pour lancer la construction de la plateforme, lancez:
+
+````
+ng build
+````
+
+Pour lancer la construction en production, lancez:
+
+````
+ng build -prod
+````
 
 ###### demander à Martin de décrire la méthode de build
 
