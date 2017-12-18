@@ -1,4 +1,4 @@
-# **Documentation front de Peeramid**
+﻿# **Documentation front de Peeramid**
 
 ## Serveur de developpement
 
@@ -52,5 +52,5 @@ ng help
 
 #
 
-[![SOS Futur](../../../sosf_logo.png)](https://www.sos-futur.fr/)
+[![SOS Futur](../sosf_logo.png)](https://www.sos-futur.fr/)
 ###### powered by [SOS Futur](https://www.sos-futur.fr/)

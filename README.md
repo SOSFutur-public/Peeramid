@@ -14,9 +14,9 @@ Teachers will then be able to access statistics relatives to each evaluation.
 
 ## Installation and usage
 
-Read the front [documentation](./dev/V2/Front/README_FRONT.md).
+Read the front [documentation](./front/README_FRONT.md).
 
-Read the back [documentation](./dev/V2/Back/README_BACK.md).
+Read the back [documentation](./back/README_BACK.md).
 
 ## How to contribute to the project
 

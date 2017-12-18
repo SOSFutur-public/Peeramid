@@ -1,4 +1,4 @@
-# **Peeramid**
+﻿# **Peeramid**
 
 ## Présentation
 
@@ -15,9 +15,9 @@ Les professeurs auront quand à eux accès à des statistiques relatives à chac
 
 ## Installation et utilisation
 
-Lire la [documentation](./dev/V2/Front/README_FRONT-french.md) de la partie front.
+Lire la [documentation](./front/README_FRONT-french.md) de la partie front.
 
-Lire la [documentation](./dev/V2/Back/README_BACK-french.md) de la partie back.
+Lire la [documentation](./back/README_BACK-french.md) de la partie back.
 
 ## Comment contribuer au projet
 

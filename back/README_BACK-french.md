@@ -1,4 +1,4 @@
-# **Documentation back de Peeramid**
+﻿# **Documentation back de Peeramid**
 
 ## Installation locale
 
@@ -196,5 +196,5 @@ et **[Symfony 3](https://symfony.com/)**.
 
 #
 
-[![SOS Futur](../../../sosf_logo.png)](https://www.sos-futur.fr/)
+[![SOS Futur](../sosf_logo.png)](https://www.sos-futur.fr/)
 ###### powered by [SOS Futur](https://www.sos-futur.fr/)
