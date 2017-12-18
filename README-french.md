@@ -21,7 +21,7 @@ Lire la [documentation](./back/README_BACK-french.md) de la partie back.
 
 ## Comment contribuer au projet
 
-(Définir la méthode de contribution au projet et mettre en place les pull requests)
+Effectuez un "fork" du projet. Puis, une fois vos modifications terminées, créez un "pull-request".
 
 ## License
 

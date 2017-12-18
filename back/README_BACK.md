@@ -9,6 +9,18 @@ the database.
 
 ### Project setup
 
+Go to the "back" directory:
+
+````
+cd back
+````
+
+Install composer:
+
+````
+php -r "eval('?>'.file_get_contents('http://getcomposer.org/installer'));"
+````
+
 To setup the project, run:
 ````
 php composer.phar install

@@ -9,6 +9,18 @@ pour le paramètre UPLOAD_MAX_SIZE dans la base de données.
 
 ### Mise en place du projet
 
+Allez dans le dossier "back":
+
+````
+cd back
+````
+
+Installez composer:
+
+````
+php -r "eval('?>'.file_get_contents('http://getcomposer.org/installer'));"
+````
+
 Pour mettre en place le projet, lancez:
 
 ````

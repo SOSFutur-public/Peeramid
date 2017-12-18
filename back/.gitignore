@@ -1,5 +1,6 @@
 .DS_Store
 composer.lock
+composer.phar
 /app/config/parameters.yml
 /app/spool/*
 /bin/symfony_requirements

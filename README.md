@@ -20,7 +20,7 @@ Read the back [documentation](./back/README_BACK.md).
 
 ## How to contribute to the project
 
-(Define contribution to the project method and implement pull requests)
+Fork the project. Then, once your modifications are done, create a pull-request.
 
 ## License
 
