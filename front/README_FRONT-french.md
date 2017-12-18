@@ -60,8 +60,6 @@ Pour lancer la construction en production, lancez:
 ng build -prod
 ````
 
-###### demander à Martin de décrire la méthode de build
-
 ## Spécifications du projet
 
 Ce projet fonctionne grâce à **[Angular 4](https://angular.io/)**.
