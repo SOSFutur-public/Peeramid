@@ -7,6 +7,14 @@ You need to modify two settings in your php.ini file: upload_max_filesize and po
 size allowed for uploaded files (example: 200M). This value should be higher than the UPLOAD_MAX_SIZE setting defined in 
 the database.
 
+You need to install web server manager:
+
+- **[LAMP](https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-16-04)** for Linux https://doc.ubuntu-fr.org/lamp
+- **[WAMP](http://www.wampserver.com/en/)** for Windows
+- **[MAMP](https://www.mamp.info/en/)** for MacOs
+
+Then, you will need to move the project to the directory provided for that purpose in the web server manager.
+
 ### Project setup
 
 Go to the "back" directory:

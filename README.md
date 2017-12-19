@@ -14,9 +14,11 @@ Teachers will then be able to access statistics relatives to each evaluation.
 
 ## Installation and usage
 
-Read the front [documentation](./front/README_FRONT.md).
+Clone the repository on your computer, then:
 
-Read the back [documentation](./back/README_BACK.md).
+- Read the back [installation guide](./back/README_BACK.md).
+
+- Read the front [installation guide](./front/README_FRONT.md).
 
 ## How to contribute to the project
 

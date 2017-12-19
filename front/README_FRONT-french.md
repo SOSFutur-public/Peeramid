@@ -12,9 +12,7 @@
 
   2. Installez **Node.js** depuis le [site officiel](https://nodejs.org/fr/).
   
-  3. (Créer un script pour créer les variables d'environnement ou en implémenter un dans le script npm install)
-  
-  4. Pour installer les paquets, lancez:
+  3. Pour installer les paquets, lancez:
      
      ````
      npm install
@@ -30,10 +28,12 @@
 
   2. Editez le fichier d'environnement:
 
-      Ouvrez le fichier "environment.ts" dans le dossier "src/environments", puis remplacez 'api_url' et 'upload_url'.
+      Ouvrez le fichier "environment.ts" dans le dossier "src/environments/", puis remplacez 'api_url' et 'upload_url'.
       ````
       api_url: '/* votre chemin d'accès à l'api */',
+        // ex: 'http://localhost/Peeramid/back/web/api/'
       upload_url: '/* votre chemin d'accès aux fichiers uploadés */'
+        // ex: 'http://localhost/Peeramid/back/web/api/'
       ````
 
   3. Pour démarrer le serveur de développement, lancez:
@@ -41,6 +41,8 @@
       ````
       ng serve
       ````
+      
+      >Cette commande doit être lancée dans le dossier "front"
 
   4. Pour accéder à la plateforme, naviguez jusqu'à [http://localhost:4200/](http://localhost:4200/).
 

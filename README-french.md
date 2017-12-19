@@ -15,9 +15,11 @@ Les professeurs auront quand à eux accès à des statistiques relatives à chac
 
 ## Installation et utilisation
 
-Lire la [documentation](./front/README_FRONT-french.md) de la partie front.
+Clonez le repository sur votre ordinateur, puis:
 
-Lire la [documentation](./back/README_BACK-french.md) de la partie back.
+- Lisez le [guide d'installation](./back/README_BACK-french.md) de la partie back.
+
+- Lisez le [guide d'installation](./front/README_FRONT-french.md) de la partie front.
 
 ## Comment contribuer au projet
 

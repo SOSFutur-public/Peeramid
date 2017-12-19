@@ -7,6 +7,14 @@ Vous devez modifier deux paramètres dans votre fichier php.ini : upload_max_fil
 taille maximum autorisée pour les fichiers uploadés (exemple : 200M). Cette valeur doit être supérieure à celle définie 
 pour le paramètre UPLOAD_MAX_SIZE dans la base de données.
 
+Vous devez installer un gestionnaire de serveur web:
+
+- **[LAMP](https://doc.ubuntu-fr.org/lamp)** pour Linux
+- **[WAMP](http://www.wampserver.com)** pour Windows
+- **[MAMP](https://www.mamp.info/en)** pour MacOs
+
+Il vous faudra ensuite placer le projet dans le dossier prévu à cet effet dans le gestionnaire de serveur web.
+
 ### Mise en place du projet
 
 Allez dans le dossier "back":
@@ -190,7 +198,7 @@ Pour créer le schéma de base de données, lancez:
 php bin/console doctrine:schema:update --force
 ````
 
-### Peuplement la base de données
+### Peuplement de la base de données
 
 Dans un gestionnaire de requêtes SQL, copiez le contenu du fichier peeramid_base.sql puis executez la requête.
 
