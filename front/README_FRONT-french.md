@@ -15,7 +15,7 @@
   3. Pour installer les paquets, lancez:
      
      ````
-     npm install
+     npm install && install.sh
      ````
 
 #### Utilisation
@@ -23,7 +23,7 @@
   1. Si de nouveaux paquets ont été installés ou mis à jour, lancez à nouveau:
      
      ````
-     npm install
+     npm install && install.sh
      ````
 
   2. Editez le fichier d'environnement:

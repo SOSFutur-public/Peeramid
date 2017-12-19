@@ -15,7 +15,7 @@
   3. To install the packages, run:
      
      ````
-     npm install
+     npm install && install.sh
      ````
 
 #### Usage
@@ -23,7 +23,7 @@
   1. If new packages have been added or upgraded to a new version, re run:
      
      ````
-     npm install
+     npm install && install.sh
      ````
 
   2. Edit the environment file:
